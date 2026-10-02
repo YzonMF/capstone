@@ -1,0 +1,158 @@
+EDNP — Deaneries and Parishes
+Source: 1st quarter report 2025 statistics.xlsx (one sheet per deanery; row 2 = place, row 3 = parish name)
+Format: Parish Name — Place
+
+=========================================
+CENTRAL DEANERY (19 parishes)
+=========================================
+St. Barnabas — Alab
+St. Thomas — Balili
+St. George — Bilig
+All Saints Cathedral — Bontoc
+Holy Trinity — Dalikan
+St. Timothy's — Dantay
+St. Augustine's — Gonogon
+St. Michael's — Guina-ang
+Annunciation — Maggon
+St. Joseph's — Mainit
+St. Gabriel's — Maligcong
+Favuyan Mission — Maligcong
+St. Peter's — Sabangan
+St. Paul — Samoki
+St. Matthias — Tambingan
+St. Agnes — Payag-eo
+Mission — Barlig
+Shalom — Capinitan
+Mission — Talubin
+
+=========================================
+TITUS DEANERY (12 parishes)
+=========================================
+St. Theodore's — Basao
+St. Andrews — Bugnay
+St. Paul's — Belwang
+St. Bernard — Buscalan
+St. James — Loccong
+Holy Cross — Tocucan
+Dominic's — Tulgao
+St. Andrew's — Bugnay
+St. Luke's — Butbut
+Transfiguration church — Maswa
+St. Philip — Ngibat
+Holy Trinity — Tinglayan
+
+=========================================
+BESAO DEANERY (14 parishes)
+=========================================
+St. Augustine — Agawa
+St. Hippolytus — Ambagiw
+St. Marks — Banguitan
+St. Anne — Besao
+St. Philip — Gueday
+St. Benidict — Kin-iway
+St. John the Divine — Lacmaan
+St. Basil — Masameyeo
+St. Caroline — Padangaan
+St. Clement — Payeo
+St. Ambrose — Suquib
+St. Luke's — Pangweo
+St. Dunstan — Catenga
+St. Jerome — Bunga
+
+=========================================
+BAUKO DEANERY (22 parishes)
+=========================================
+Holy Apostle — Abatan
+St. Gregory — Bagnen
+St. Andrew — Bagnen Oriente
+Saint Martin — Balintaugan
+Holy Innocent — Bebe
+St. John — Bila
+St. Gabriel — Data
+San Luis — Mabaay
+San Jose — Madepdepas
+St. Matthias — Mayag
+St. Mary — Mount Data
+St. Paul — Otucan
+St. Leo — Sadsadan
+St. Francis — Cagubatan
+St. Anselm — Pandayan
+St. Bernard — Pangao
+St. Mark — Sinto
+Mission — Sengyew
+San Pedro — Pasbol
+St. John — Pasnadan
+St. Gregory — Soysoyoc
+St. Martin — Gotang
+
+=========================================
+KINALI DEANERY (14 parishes)
+=========================================
+St Cyril — Bab-asig
+St. Jerome — Bunga
+St. Dunstan — Catengan
+St. Hilarys — Dandanac
+St. Marks — Pananuman
+St. Bede — Panabungen
+St. Andrew — Patiacan
+St. Cyprian — Mabalite
+St. Alfred — Tamboan
+St. Luke — Maliten
+St. Joseph — Lamag
+St. Mathias — Supo
+St. Stephen — Legleg
+St. Polycarp — Matibuey
+
+=========================================
+SAGADA DEANERY (16 parishes)
+=========================================
+Ignacia & Juan — Aguid
+St. Columba — Ambasing
+Annunciation — Antadao
+St. John — Balugan
+St. Matthew — Bangaan
+St. Mary Magdalene — Fedelisan
+St. Elizabeth — Guesang
+St. John — Pide
+St. Mark — Tanulong
+St. Mary — Tetep-an
+St. Mary the Virgin — Sagada
+Corpus Christi — Soyu
+St. Simon Peter — Demang
+St. Stephen — Nacagang
+St. Agnes — Pide
+St. aidan's — Ankileng
+
+=========================================
+TADIAN DEANERY (17 parishes)
+=========================================
+Holy Trinity — Bantey
+Holy Innocent — Batayan
+St. Martha — Cabunagan
+St. Francis — New Lubon
+St. Gabriel — Lubon
+St. Joseph — Masla
+St. John the Baptist — Ilang
+Mission — Duagan
+Epiphany — Sumadel
+St. Michael & all angels — Tadian
+St. Philip — Tue
+St. Thomas — Balaoa
+St. Ignatius — Kayan
+St. Catherine — Cervantes
+St. Mark — Nabitic
+St. Stephen — Bunga
+St. Cyprian — Mabalite
+
+=========================================
+SPECIAL ASSIGNMENTS (4) — not from the spreadsheet, added for non-parish postings
+=========================================
+Diocesan Office
+Overseas Mission
+Retired Clergy
+Former Parish
+
+-----------------------------------------
+TOTAL: 118 parishes across 7 deaneries, plus 4 special assignments
+This list mirrors the `deaneries` object in admin/js/clergy-records.js —
+update both if the real data changes.

@@ -1,0 +1,113 @@
+EDNP CLERGY RECORD-KEEPING SYSTEM
+Fix: Document/Attachment Types Are Incomplete
+==============================================
+
+CONTEXT FOR CLAUDE CODE
+------------------------
+This is a Django project (folder: mywebsite) integrating a frontend that was
+originally three static HTML files, now split into:
+  - registrar_dashboard.html  (Registrar/Admin portal — full CRUD)
+  - clergy_portal.html        (Clergy portal — read/submit only)
+  - login.html                (shared login)
+
+The ERD has a DOCUMENT_TYPE entity and a DOCUMENT entity (each DOCUMENT row
+belongs to a CLERGY member and references a DOCUMENT_TYPE). Right now the
+document types available in the system (whatever is hardcoded in the HTML
+dropdowns/checklists, or seeded in the DB) are INCOMPLETE — they don't cover
+the full attachment checklist required for ordination at each clergy rank.
+
+Before changing anything: locate where document types currently live. Check
+for any of the following and report back what you find:
+  1. A DOCUMENT_TYPE model/migration or fixture/seed data in the Django app
+  2. Hardcoded <option> or checklist items in registrar_dashboard.html and
+     clergy_portal.html (search for "Ordination Certificate", "Biodata",
+     "Document", "Attachment", "Requirements")
+  3. Any JS array/object driving a document-requirements checklist per rank
+
+GOAL
+----
+The system must track that ordination attachment requirements are CUMULATIVE
+by rank — each higher rank requires everything the rank below it requires,
+PLUS its own additional documents. A clergy member's required-documents
+checklist should be generated based on their current/target rank, not a
+single flat list.
+
+Ranks, in order: Postulancy -> Deacon -> Priest -> Bishop
+
+THE COMPLETE DOCUMENT CHECKLIST (source of truth)
+---------------------------------------------------
+
+1) POSTULANCY (baseline — required for every clergy member, regardless of
+   final rank):
+   - Endorsement from parish priest and vestry
+   - Medical exam result (valid 6 months from issue)
+   - Psychiatric evaluation result (valid 1 year from issue) — record the
+     date it was received by the bishop
+   - Letter of intention
+   - Interview record -> Endorsement from Commission on Ministry
+
+2) DEACON (Postulancy requirements PLUS):
+   - Endorsement from another priest
+   - Declaration of conformity
+   - Letter of intention (deacon-stage)
+
+3) PRIEST (Postulancy + Deacon requirements PLUS):
+   - Endorsement from Commission on Ministry AND Standing Committee
+   - Oath of conformity (record the place it was taken)
+   - Letter of intention (priest-stage)
+
+4) BISHOP (Postulancy + Deacon + Priest requirements PLUS):
+   - Endorsement from another bishop
+
+SUPPORTING DOCUMENT TYPES (not rank-gated, but must exist as types too):
+   - Deployment notice (issued by the bishop)
+   - Letter of institution (issued per deployment/assignment)
+   - Biodata form (structured personal info — birth date, ordination entry
+     date, date for holy orders, date of ordination to diaconate/priesthood,
+     bishop date of consecration, marriage info incl. spouse & children
+     names, retirement date, places of employment/deployment — this is
+     mostly CLERGY table fields, but the signed physical biodata sheet
+     itself is a scanned DOCUMENT of type "Biodata Form")
+   - Birth certificate
+   - Seminary evaluation / grades / ember letter (from seminary, feeds
+     the "seminary schooling stage" the panel asked to add upstream of
+     ordination)
+
+DATA MODEL CHANGES TO MAKE
+----------------------------
+- DOCUMENT_TYPE should have a field indicating which rank first requires it
+  (e.g. `required_from_rank`: postulancy / deacon / priest / bishop / none)
+  so the "cumulative by rank" rule can be computed rather than duplicated.
+- Add a `is_required` and `validity_period` (nullable, in months) field to
+  DOCUMENT_TYPE to support the medical exam (6 months) and psychiatric
+  eval (1 year) expiry tracking.
+- Seed/fixture data should create ALL document types listed above, tagged
+  with the correct `required_from_rank`.
+
+FRONTEND / LOGIC CHANGES TO MAKE
+-----------------------------------
+- Clergy portal "My Documents" / upload checklist: given the clergy
+  member's current rank, compute and display the FULL cumulative list of
+  required document types (not just the ones for their exact rank), with
+  clear status per item (Submitted / Missing / Expired).
+- Registrar dashboard "Documents" / "Manage Documents" view: when viewing a
+  clergy record, show the same cumulative, rank-aware checklist so the
+  registrar can see at a glance what's missing — this matches the
+  "add documents to track records being submitted and not submitted, and
+  notify clergy of what's missing" requirement from panel feedback.
+- Flag expired documents (medical exam past 6 months, psychiatric eval past
+  1 year) visually — don't just mark them "submitted".
+- Do NOT let clergy upload/edit another clergy member's documents — registrar
+  sees all, clergy sees only their own (already an established rule, just
+  confirming it still holds once the checklist logic changes).
+
+WHAT TO DO FIRST
+------------------
+1. Grep the codebase for the current document type list/logic and report
+   exactly what's there now (model, fixture, or hardcoded HTML/JS).
+2. Propose a migration/fixture diff before touching any template.
+3. Once the data model is confirmed, wire the cumulative-checklist logic
+   into both dashboards.
+4. Don't change unrelated parts of the dashboards (report generation,
+   auth, deanery/status views) — this task is scoped to document types and
+   the document-checklist UI only.

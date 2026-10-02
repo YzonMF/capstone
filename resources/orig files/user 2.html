@@ -1,0 +1,3439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDNP — Clergy User Portal</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+  --navy:#17324d;
+  --navy2:#234b68;
+  --blue:#2f6fed;
+  --bg:#f4f6f9;
+  --white:#fff;
+  --text:#17212b;
+  --muted:#718096;
+  --line:#e1e7ee;
+  --green:#239b62;
+  --greenbg:#e9f7ef;
+  --amber:#9a6900;
+  --amberbg:#fff4dc;
+  --red:#c94b47;
+  --redbg:#fff0ef;
+}
+
+body{
+  margin:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+}
+
+button,input,select,textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+.login{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#17324d,#2d5a78);
+  padding:20px;
+}
+
+.login-card{
+  width:min(410px,95vw);
+  background:#fff;
+  border-radius:16px;
+  padding:30px;
+  box-shadow:0 25px 70px #071b2a55;
+}
+
+.brand-login{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:25px;
+}
+
+.logo{
+  width:43px;
+  height:43px;
+  border-radius:11px;
+  background:var(--navy);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+
+.login h1{
+  font-size:23px;
+  margin:0;
+}
+
+.login p{
+  font-size:14px;
+  color:var(--muted);
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin:13px 0;
+}
+
+.field label{
+  font-size:12px;
+  font-weight:700;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:11px;
+  background:#fff;
+  font-size:13px;
+}
+
+textarea{
+  resize:vertical;
+}
+
+.login .btn{
+  width:100%;
+  margin-top:8px;
+}
+
+.demo{
+  font-size:12px;
+  color:var(--muted);
+  background:#f7f9fb;
+  border:1px solid var(--line);
+  padding:10px;
+  border-radius:8px;
+  margin-top:15px;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+  border:0;
+  border-radius:8px;
+  padding:10px 14px;
+  background:var(--blue);
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+}
+
+.btn.secondary{
+  background:#edf1f5;
+  color:#334155;
+}
+
+.btn.green{
+  background:var(--green);
+  color:#fff !important;
+}
+
+.btn.danger{
+  background:var(--redbg);
+  color:var(--red);
+}
+
+.btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+
+/* =========================
+   APP LAYOUT
+========================= */
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:245px;
+  background:var(--navy);
+  color:#fff;
+  padding:22px 14px;
+  z-index:5;
+}
+
+.brand{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:4px 10px 28px;
+  font-weight:800;
+}
+
+.brand small{
+  color:#aabaca;
+  font-weight:500;
+  font-size:12px;
+}
+
+.nav-title{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:#8fa5b8;
+  margin:15px 12px 6px;
+}
+
+.nav button{
+  display:block;
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#cbd7e2;
+  text-align:left;
+  padding:13px 12px;
+  border-radius:8px;
+  margin:2px 0;
+  font-size:15px;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:#294863;
+  color:#fff;
+}
+
+.side-foot{
+  position:absolute;
+  left:25px;
+  bottom:20px;
+  color:#9db0c1;
+  font-size:12px;
+  line-height:1.5;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+main{
+  margin-left:245px;
+  width:calc(100% - 245px);
+  padding:25px 32px 50px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:23px;
+}
+
+.top h1{
+  margin:0;
+  font-size:30px;
+}
+
+.sub{
+  font-size:14px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+
+/* =========================
+   USER PROFILE TOP
+========================= */
+
+.profile{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:7px 10px;
+}
+
+.avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#eaf1ff;
+  color:var(--blue);
+  display:grid;
+  place-items:center;
+  font-size:14px;
+  font-weight:800;
+}
+
+
+/* =========================
+   PAGES
+========================= */
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.welcome{
+  background:linear-gradient(115deg,#17324d,#245477);
+  color:#fff;
+  border-radius:14px;
+  padding:22px;
+  margin-bottom:16px;
+}
+
+.welcome h2{
+  font-size:24px;
+  margin:0 0 5px;
+}
+
+.welcome p{
+  margin:0;
+  color:#d8e5ef;
+  font-size:14px;
+}
+
+
+/* =========================
+   STAT CARDS
+========================= */
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:13px;
+}
+
+.stat{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:16px;
+}
+
+.stat small{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.stat h2{
+  font-size:30px;
+  margin:7px 0;
+}
+
+.stat p{
+  font-size:12px;
+  color:var(--muted);
+  margin:0;
+}
+
+
+/* =========================
+   GRID
+========================= */
+
+.grid{
+  display:grid;
+  grid-template-columns:1.35fr .9fr;
+  gap:16px;
+  margin-top:16px;
+}
+
+.panel{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:18px;
+}
+
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:15px;
+}
+
+.panel h3{
+  font-size:18px;
+  margin:0 0 3px;
+}
+
+.muted{
+  font-size:12px;
+  color:var(--muted);
+}
+
+
+/* =========================
+   INFORMATION
+========================= */
+
+.info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.info{
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:11px;
+}
+
+.info label{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.info b{
+  font-size:14px;
+}
+
+
+/* =========================
+   QUICK SERVICES
+========================= */
+
+.quick{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+}
+
+.quick button{
+  background:#fafbfd;
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:12px;
+  text-align:left;
+}
+
+.quick button:hover{
+  background:#f4f8ff;
+}
+
+.quick b{
+  display:block;
+  font-size:13px;
+}
+
+.quick span{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+
+/* =========================
+   BADGES
+========================= */
+
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.green{
+  background:var(--greenbg);
+  color:var(--green);
+}
+
+.amber{
+  background:var(--amberbg);
+  color:var(--amber);
+}
+
+.blue{
+  background:#eaf1ff;
+  color:var(--blue);
+}
+
+.red{
+  background:var(--redbg);
+  color:var(--red);
+}
+
+
+/* =========================
+   NOTICES
+========================= */
+
+.notice{
+  padding:11px;
+  border-radius:8px;
+  background:var(--amberbg);
+  color:#805c08;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+.success{
+  background:var(--greenbg);
+  color:#236f49;
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  text-align:left;
+  color:var(--muted);
+  font-size:11px;
+  padding:9px 7px;
+  border-bottom:1px solid var(--line);
+}
+
+td{
+  font-size:13px;
+  padding:11px 7px;
+  border-bottom:1px solid #edf0f3;
+}
+
+
+/* =========================
+   FORM GRID
+========================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+.actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+  margin-top:15px;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-bg{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#071b2a77;
+  z-index:30;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-bg.show{
+  display:flex;
+}
+
+.modal{
+  width:min(600px,94vw);
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:14px;
+  padding:21px;
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+}
+
+.close{
+  border:0;
+  background:none;
+  font-size:22px;
+}
+
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#17212b;
+  color:#fff;
+  padding:12px 15px;
+  border-radius:8px;
+  font-size:14px;
+  display:none;
+  z-index:50;
+}
+
+.toast.show{
+  display:block;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1000px){
+
+  .sidebar{
+    width:210px;
+  }
+
+  main{
+    margin-left:210px;
+    width:calc(100% - 210px);
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:650px){
+
+  .sidebar{
+    position:static;
+    width:100%;
+    height:auto;
+  }
+
+  .app{
+    display:block;
+  }
+
+  .side-foot{
+    display:none;
+  }
+
+  main{
+    margin:0;
+    width:100%;
+    padding:18px;
+  }
+
+  .top{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+
+  .cards,
+  .info-grid,
+  .quick,
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+}
+
+
+/* =========================
+   PROFILE BUTTON
+========================= */
+
+.save-profile-btn{
+  min-width:150px;
+  background:var(--green)!important;
+  color:#fff!important;
+  font-weight:700;
+}
+
+.save-profile-btn:hover{
+  background:#1d8755!important;
+}
+
+
+/* =========================
+   READ ONLY
+========================= */
+
+input[readonly]{
+  background:#f3f5f7;
+  color:#64748b;
+  cursor:not-allowed;
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- =========================================================
+     LOGIN
+========================================================= -->
+
+<div id="login" class="login">
+
+  <div class="login-card">
+
+    <div class="brand-login">
+
+      <div class="logo">ED</div>
+
+      <div>
+        <b>EDNP</b>
+
+        <div style="font-size:14px;color:#718096">
+          Clergy User Portal
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <h1>Clergy Sign In</h1>
+
+    <p>
+      Sign in to access your Clergy User Dashboard.
+    </p>
+
+
+    <form onsubmit="login(event)">
+
+      <div class="field">
+
+        <label>Username</label>
+
+        <input
+          id="loginUser"
+          autocomplete="username"
+          required
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Password</label>
+
+        <input
+          id="loginPass"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+
+      </div>
+
+
+      <button class="btn">
+        Sign In
+      </button>
+
+    </form>
+
+
+    <div class="demo">
+
+      <b>Clergy User Login</b><br>
+
+      Use your registered username and password
+      to access your dashboard.
+
+      <br><br>
+
+      <b>Demo:</b> clergy / password
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     MAIN APPLICATION
+========================================================= -->
+
+<div id="app" class="app hidden">
+
+
+  <!-- =======================================================
+       SIDEBAR
+  ======================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="logo">
+        ED
+      </div>
+
+      <div>
+        EDNP<br>
+
+        <small>
+          Clergy Portal
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div class="nav">
+
+      <div class="nav-title">
+        My Portal
+      </div>
+
+
+      <button
+        class="nav-item active"
+        onclick="showPage('dashboard',this)"
+      >
+        ⌂ Dashboard
+      </button>
+
+
+      <button
+        class="nav-item"
+        onclick="showPage('profile',this)"
+      >
+        ◉ My Profile
+      </button>
+
+
+      <button
+        class="nav-item"
+        onclick="showPage('record',this)"
+      >
+        ▣ My Record
+      </button>
+
+
+      <button
+        class="nav-item"
+        onclick="showPage('reports',this)"
+      >
+        ▤ Quarterly Reports
+      </button>
+
+
+      <button
+        class="nav-item"
+        onclick="showPage('notifications',this)"
+      >
+        ● Notifications
+      </button>
+
+    </div>
+
+
+    <div class="side-foot">
+
+      Clergy User<br>
+      Self-Service Access<br>
+      EDNP v1.0
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =======================================================
+       MAIN
+  ======================================================== -->
+
+  <main>
+
+
+    <!-- TOP BAR -->
+
+    <div class="top">
+
+      <div>
+
+        <h1 id="pageTitle">
+          My Dashboard
+        </h1>
+
+        <div class="sub">
+          Electronic Diocese Network Portal — Clergy Self-Service
+        </div>
+
+      </div>
+
+
+      <div class="profile">
+
+        <div class="avatar">
+          JD
+        </div>
+
+        <div>
+
+          <b
+            style="font-size:14px"
+            id="topUserName"
+          >
+            Rev. Fr. Juan Dela Cruz
+          </b>
+
+          <div
+            style="font-size:11px;color:#718096"
+          >
+            Clergy User
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn secondary"
+          onclick="logout()"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         DASHBOARD
+    ====================================================== -->
+
+    <section
+      id="dashboard"
+      class="page active"
+    >
+
+
+      <div class="welcome">
+
+        <h2>
+          Welcome, Rev. Fr. Juan Dela Cruz
+        </h2>
+
+        <p>
+          This portal is limited to your own clergy
+          information and self-service transactions.
+        </p>
+
+      </div>
+
+
+
+      <!-- DASHBOARD CARDS -->
+
+      <div class="cards">
+
+
+        <div class="stat">
+
+          <small>
+            My Record Status
+          </small>
+
+          <h2>
+
+            <span class="badge green">
+              Active
+            </span>
+
+          </h2>
+
+          <p>
+            Current clergy status
+          </p>
+
+        </div>
+
+
+
+        <div class="stat">
+
+          <small>
+            Contract End
+          </small>
+
+          <h2
+            style="font-size:17px"
+            id="dashboardContractEnd"
+          >
+            Mar 31, 2027
+          </h2>
+
+          <p id="contractMessage">
+            No expiry notice yet
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- DASHBOARD CONTENT -->
+
+      <div class="grid">
+
+
+        <!-- MY CLERGY RECORD -->
+
+        <div class="panel">
+
+          <div class="panel-head">
+
+            <div>
+
+              <h3>
+                My Clergy Record
+              </h3>
+
+              <span class="muted">
+                View-only access
+              </span>
+
+            </div>
+
+
+            <button
+              class="btn secondary"
+              onclick="showPage('record')"
+            >
+              View Record
+            </button>
+
+          </div>
+
+
+
+          <div class="info-grid">
+
+
+            <div class="info">
+
+              <label>Full Name</label>
+
+              <b id="dashName">
+                Rev. Fr. Juan Dela Cruz
+              </b>
+
+            </div>
+
+
+            <div class="info">
+
+              <label>Record ID</label>
+
+              <b id="dashRecordId">
+                CLG-000001
+              </b>
+
+            </div>
+
+
+            <div class="info">
+
+              <label>Assignment</label>
+
+              <b id="dashAssignment">
+                St. Peter Parish
+              </b>
+
+            </div>
+
+
+            <div class="info">
+
+              <label>Status</label>
+
+              <b id="dashStatus">
+                Active
+              </b>
+
+            </div>
+
+
+            <div class="info">
+
+              <label>Contract End</label>
+
+              <b id="dashContract">
+                March 31, 2027
+              </b>
+
+            </div>
+
+
+            <div class="info">
+
+              <label>Verification</label>
+
+              <b id="dashVerification">
+                Verified
+              </b>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- QUICK SERVICES -->
+
+        <div class="panel">
+
+          <div class="panel-head">
+
+            <div>
+
+              <h3>
+                Quick Services
+              </h3>
+
+              <span class="muted">
+                Available clergy services
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="quick">
+
+            <!-- QUARTERLY REPORT ONLY -->
+
+            <button
+              onclick="openReport()"
+            >
+
+              <b>
+                Quarterly Report
+              </b>
+
+              <span>
+                Submit your quarterly report
+              </span>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MY PROFILE
+    ====================================================== -->
+
+    <section
+      id="profile"
+      class="page"
+    >
+
+      <div class="panel">
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3>
+              My Profile
+            </h3>
+
+            <span class="muted">
+              View and edit your personal and contact information.
+            </span>
+
+          </div>
+
+          <span class="badge blue">
+            Self-Service
+          </span>
+
+        </div>
+
+
+        <div class="notice">
+
+          You may update your personal information
+          and contact details. Your official clergy status,
+          record ID, and Registrar verification remain
+          controlled by the Registrar.
+
+        </div>
+
+
+        <form
+          id="profileForm"
+          onsubmit="saveProfile(event)"
+        >
+
+
+          <!-- PERSONAL INFORMATION -->
+
+          <h3 style="margin:20px 0 10px">
+            Personal Information
+          </h3>
+
+
+          <div class="form-grid">
+
+
+            <div class="field">
+
+              <label>First Name *</label>
+
+              <input
+                id="profFirst"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>Middle Name</label>
+
+              <input
+                id="profMiddle"
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>Last Name *</label>
+
+              <input
+                id="profLast"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>Suffix</label>
+
+              <input
+                id="profSuffix"
+                placeholder="Jr., III, etc."
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>Date of Birth *</label>
+
+              <input
+                id="profDOB"
+                type="date"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>Place of Birth *</label>
+
+              <input
+                id="profPOB"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>Gender *</label>
+
+              <select
+                id="profGender"
+                required
+              >
+
+                <option value="">
+                  Select Gender
+                </option>
+
+                <option>
+                  Male
+                </option>
+
+                <option>
+                  Female
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Civil Status
+              </label>
+
+              <select id="profCivil">
+
+                <option value="">
+                  Select
+                </option>
+
+                <option>
+                  Single
+                </option>
+
+                <option>
+                  Married
+                </option>
+
+                <option>
+                  Widowed
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Date of Baptism *
+              </label>
+
+              <input
+                id="profBaptism"
+                type="date"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Place of Baptism
+              </label>
+
+              <input
+                id="profBaptismPlace"
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Date of Confirmation *
+              </label>
+
+              <input
+                id="profConfirmation"
+                type="date"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Place of Confirmation
+              </label>
+
+              <input
+                id="profConfirmationPlace"
+              >
+
+            </div>
+
+
+            <div class="field full">
+
+              <label>
+                Complete Address *
+              </label>
+
+              <textarea
+                id="profAddress"
+                rows="3"
+                required
+              ></textarea>
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Contact Number *
+              </label>
+
+              <input
+                id="profContact"
+                type="tel"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Email Address *
+              </label>
+
+              <input
+                id="profEmail"
+                type="email"
+                required
+              >
+
+            </div>
+
+          </div>
+
+
+
+          <!-- CLERGY INFORMATION -->
+
+          <h3 style="margin:25px 0 10px">
+            Clergy Information
+          </h3>
+
+
+          <div class="form-grid">
+
+
+            <div class="field">
+
+              <label>
+                Date of Ordination *
+              </label>
+
+              <input
+                id="profOrdination"
+                type="date"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Place of Ordination
+              </label>
+
+              <input
+                id="profOrdinationPlace"
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Current Assignment *
+              </label>
+
+              <input
+                id="profAssignment"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Previous Assignment
+              </label>
+
+              <input
+                id="profPreviousAssignment"
+              >
+
+            </div>
+
+
+            <div class="field full">
+
+              <label>
+                Educational Background
+              </label>
+
+              <textarea
+                id="profEducation"
+                rows="4"
+                placeholder="Seminary, college, degree, school, year completed, etc."
+              ></textarea>
+
+            </div>
+
+
+            <div class="field full">
+
+              <label>
+                Other Relevant Information
+              </label>
+
+              <textarea
+                id="profOther"
+                rows="4"
+              ></textarea>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- ACCOUNT -->
+
+          <h3 style="margin:25px 0 10px">
+            Account
+          </h3>
+
+
+          <div class="form-grid">
+
+
+            <div class="field">
+
+              <label>
+                Username *
+              </label>
+
+              <input
+                id="profUsername"
+                autocomplete="username"
+                required
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                New Password
+              </label>
+
+              <input
+                id="profPassword"
+                type="password"
+                minlength="6"
+                autocomplete="new-password"
+                placeholder="Leave blank to keep current password"
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Record ID
+              </label>
+
+              <input
+                id="profRecordId"
+                readonly
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Clergy Status
+              </label>
+
+              <input
+                id="profStatus"
+                readonly
+              >
+
+            </div>
+
+          </div>
+
+
+
+          <!-- ACTION BUTTONS -->
+
+          <div class="actions">
+
+            <button
+              type="button"
+              class="btn secondary"
+              onclick="loadProfileForm()"
+            >
+              Cancel Changes
+            </button>
+
+
+            <button
+              type="submit"
+              class="btn green save-profile-btn"
+            >
+              Save Profile
+            </button>
+
+          </div>
+
+
+        </form>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MY RECORD
+    ====================================================== -->
+
+    <section
+      id="record"
+      class="page"
+    >
+
+      <div class="panel">
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3>
+              My Clergy Record
+            </h3>
+
+            <span class="muted">
+              Personal record access is read-only.
+            </span>
+
+          </div>
+
+          <span class="badge green">
+            Verified
+          </span>
+
+        </div>
+
+
+        <div class="info-grid">
+
+
+          <div class="info">
+
+            <label>
+              Full Name
+            </label>
+
+            <b id="recordName">
+              Rev. Fr. Juan Dela Cruz
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Record ID
+            </label>
+
+            <b id="recordId">
+              CLG-000001
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Assignment
+            </label>
+
+            <b id="recordAssignment">
+              St. Peter Parish
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Status
+            </label>
+
+            <b id="recordStatus">
+              Active
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Contract Start
+            </label>
+
+            <b>
+              April 1, 2024
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Contract End
+            </label>
+
+            <b id="recordContractEnd">
+              March 31, 2027
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Years of Service
+            </label>
+
+            <b>
+              12 years
+            </b>
+
+          </div>
+
+
+          <div class="info">
+
+            <label>
+              Last Verified
+            </label>
+
+            <b>
+              August 10, 2026
+            </b>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         QUARTERLY REPORTS
+    ====================================================== -->
+
+    <section
+      id="reports"
+      class="page"
+    >
+
+      <div class="panel">
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3>
+              Quarterly Reports
+            </h3>
+
+            <span class="muted">
+              Upload your completed quarterly report document.
+            </span>
+
+          </div>
+
+
+          <button
+            class="btn"
+            onclick="openReport()"
+          >
+            ＋ Upload Report
+          </button>
+
+        </div>
+
+
+        <div class="notice success">
+
+          Upload your completed quarterly report
+          instead of filling out the report online.
+          Submitted files are automatically included
+          in the system's consolidated quarterly report.
+
+        </div>
+
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Period</th>
+              <th>File</th>
+              <th>Uploaded</th>
+              <th>Status</th>
+              <th>Action</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="reportsTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         NOTIFICATIONS
+    ====================================================== -->
+
+    <section
+      id="notifications"
+      class="page"
+    >
+
+      <div class="panel">
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3>
+              My Notifications
+            </h3>
+
+            <span class="muted">
+              System notices related to your own account.
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="expiryNotice"
+          class="notice hidden"
+        ></div>
+
+
+        <div class="notice success">
+
+          <b>
+            Account verified.
+          </b>
+
+          <br>
+
+          Your clergy record is currently
+          verified and active.
+
+        </div>
+
+
+        <div class="notice">
+
+          <b>
+            Privacy restriction.
+          </b>
+
+          <br>
+
+          You can only access and edit your own
+          profile information. Official clergy
+          records remain controlled by the Registrar.
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<!-- =========================================================
+     VISA MODAL
+
+     KEPT IN CODE BUT NO LONGER AVAILABLE FROM
+     QUICK SERVICES ON THE DASHBOARD.
+========================================================= -->
+
+<div
+  id="visaModal"
+  class="modal-bg"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <div>
+
+        <h3 style="margin:0">
+          Visa Support Letter Request
+        </h3>
+
+        <span class="muted">
+          Eligibility is checked before submission.
+        </span>
+
+      </div>
+
+      <button
+        class="close"
+        onclick="closeModal('visaModal')"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div
+      id="visaAllowed"
+      class="hidden"
+    >
+
+      <div class="notice success">
+
+        Your status is
+        <b>Assigned Abroad</b>.
+
+        You may submit a visa support
+        letter request.
+
+      </div>
+
+
+      <form onsubmit="submitVisa(event)">
+
+        <div class="field">
+
+          <label>
+            Purpose
+          </label>
+
+          <textarea
+            required
+            rows="4"
+            placeholder="Enter visa purpose"
+          ></textarea>
+
+        </div>
+
+
+        <div class="actions">
+
+          <button
+            type="button"
+            class="btn secondary"
+            onclick="closeModal('visaModal')"
+          >
+            Cancel
+          </button>
+
+          <button class="btn">
+            Submit Visa Request
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+
+    <div id="visaBlocked">
+
+      <div class="notice">
+
+        Request blocked.
+
+        Your current status is
+        <b>Active</b>.
+
+        The system only permits visa support
+        letter requests when the clergy member's
+        current status is
+        <b>Assigned Abroad</b>.
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="btn secondary"
+          onclick="closeModal('visaModal')"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     REPORT UPLOAD MODAL
+========================================================= -->
+
+<div
+  id="reportModal"
+  class="modal-bg"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <div>
+
+        <h3 style="margin:0">
+          Upload Quarterly Report
+        </h3>
+
+        <span class="muted">
+          Upload the completed report document
+          from your device.
+        </span>
+
+      </div>
+
+
+      <button
+        class="close"
+        onclick="closeModal('reportModal')"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <form onsubmit="submitReport(event)">
+
+      <div class="form-grid">
+
+
+        <div class="field">
+
+          <label>
+            Quarter / Period
+          </label>
+
+          <select
+            id="reportQuarter"
+            required
+          >
+
+            <option value="">
+              Select period
+            </option>
+
+            <option>
+              Q3 2026
+            </option>
+
+            <option>
+              Q4 2026
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Clergy
+          </label>
+
+          <input
+            id="reportClergy"
+            value="Rev. Fr. Juan Dela Cruz"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="field full">
+
+          <label>
+            Quarterly Report Document
+          </label>
+
+          <input
+            id="reportFile"
+            type="file"
+            accept=".pdf,.doc,.docx,.xls,.xlsx"
+            required
+          >
+
+          <div
+            class="muted"
+            style="margin-top:5px"
+          >
+            Accepted: PDF, DOC, DOCX, XLS, XLSX
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          type="button"
+          class="btn secondary"
+          onclick="closeModal('reportModal')"
+        >
+          Cancel
+        </button>
+
+
+        <button class="btn">
+          Upload Report
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+
+<!-- TOAST -->
+
+<div
+  id="toast"
+  class="toast"
+></div>
+
+
+
+<script>
+
+/* =========================================================
+   USER DATA
+========================================================= */
+
+let user = JSON.parse(
+  localStorage.getItem("ednpClergyUser") || "null"
+);
+
+
+/* =========================================================
+   DEMO REPORTS
+========================================================= */
+
+let reports = [
+
+  {
+    period:"Q2 2026",
+    file:"Quarterly_Report_Q2_2026.pdf",
+    date:"June 30, 2026",
+    status:"Submitted"
+  },
+
+  {
+    period:"Q1 2026",
+    file:"Quarterly_Report_Q1_2026.pdf",
+    date:"March 31, 2026",
+    status:"Submitted"
+  }
+
+];
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function login(e){
+
+  e.preventDefault();
+
+  const saved = JSON.parse(
+    localStorage.getItem("ednpClergyUser") || "null"
+  );
+
+  const username =
+    document.getElementById("loginUser").value.trim();
+
+  const password =
+    document.getElementById("loginPass").value;
+
+
+  const account = saved || {
+
+    username:"clergy",
+
+    password:"password",
+
+    name:"Rev. Fr. Juan Dela Cruz",
+
+    firstName:"Juan",
+
+    middleName:"",
+
+    lastName:"Dela Cruz",
+
+    suffix:"",
+
+    birthDate:"1985-05-15",
+
+    placeOfBirth:"Baguio City",
+
+    gender:"Male",
+
+    civilStatus:"Single",
+
+    baptismDate:"1985-06-01",
+
+    baptismPlace:"St. Peter Parish",
+
+    confirmationDate:"1990-07-15",
+
+    confirmationPlace:"St. Peter Parish",
+
+    address:"Baguio City, Philippines",
+
+    contact:"09123456789",
+
+    email:"juan@example.com",
+
+    ordinationDate:"2014-04-01",
+
+    ordinationPlace:"Baguio Cathedral",
+
+    assignment:"St. Peter Parish",
+
+    previousAssignment:"St. Paul Parish",
+
+    education:"Seminary and theological studies",
+
+    otherInformation:"",
+
+    status:"Active",
+
+    id:"CLG-000001",
+
+    diocese:
+      "Episcopal Diocese of Northern Philippines",
+
+    contractEnd:"March 31, 2027",
+
+    verification:"Verified"
+
+  };
+
+
+  if(
+    username === account.username &&
+    password === account.password
+  ){
+
+    user = account;
+
+    localStorage.setItem(
+      "ednpClergyUser",
+      JSON.stringify(user)
+    );
+
+
+    document
+      .getElementById("login")
+      .classList.add("hidden");
+
+
+    document
+      .getElementById("app")
+      .classList.remove("hidden");
+
+
+    updateUserUI();
+
+    renderAll();
+
+  }
+
+  else{
+
+    toast(
+      "Invalid username or password."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout(){
+
+  document
+    .getElementById("app")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("login")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("loginPass")
+    .value = "";
+
+}
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+function showPage(id,btn){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page =>
+      page.classList.remove("active")
+    );
+
+
+  const page =
+    document.getElementById(id);
+
+  if(page){
+    page.classList.add("active");
+  }
+
+
+  document
+    .querySelectorAll(".nav button")
+    .forEach(button =>
+      button.classList.remove("active")
+    );
+
+
+  if(btn){
+    btn.classList.add("active");
+  }
+
+
+  const titles = {
+
+    dashboard:"My Dashboard",
+
+    profile:"My Profile",
+
+    record:"My Clergy Record",
+
+    reports:"Quarterly Reports",
+
+    notifications:"My Notifications"
+
+  };
+
+
+  document
+    .getElementById("pageTitle")
+    .textContent =
+      titles[id] || "My Dashboard";
+
+}
+
+
+/* =========================================================
+   UPDATE USER UI
+========================================================= */
+
+function updateUserUI(){
+
+  if(!user){
+    return;
+  }
+
+
+  const name =
+    user.name || "Clergy User";
+
+
+  const initials =
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0,2)
+      .map(x => x[0])
+      .join("")
+      .toUpperCase();
+
+
+  document
+    .querySelectorAll(".profile b")
+    .forEach(element => {
+
+      element.textContent = name;
+
+    });
+
+
+  document
+    .querySelectorAll(".avatar")
+    .forEach(element => {
+
+      element.textContent =
+        initials || "CU";
+
+    });
+
+
+  const welcome =
+    document.querySelector(".welcome h2");
+
+  if(welcome){
+
+    welcome.textContent =
+      "Welcome, " + name;
+
+  }
+
+
+  /* DASHBOARD */
+
+  setText(
+    "dashName",
+    name
+  );
+
+  setText(
+    "dashRecordId",
+    user.id || "Pending"
+  );
+
+  setText(
+    "dashAssignment",
+    user.assignment || "Not assigned"
+  );
+
+  setText(
+    "dashStatus",
+    user.status || "Active"
+  );
+
+  setText(
+    "dashContract",
+    user.contractEnd || "Not yet assigned"
+  );
+
+  setText(
+    "dashVerification",
+    user.verification || "Pending verification"
+  );
+
+
+  setText(
+    "dashboardContractEnd",
+    user.contractEnd || "Not yet assigned"
+  );
+
+
+  /* RECORD */
+
+  setText(
+    "recordName",
+    name
+  );
+
+  setText(
+    "recordId",
+    user.id || "Pending"
+  );
+
+  setText(
+    "recordAssignment",
+    user.assignment || "Not assigned"
+  );
+
+  setText(
+    "recordStatus",
+    user.status || "Active"
+  );
+
+  setText(
+    "recordContractEnd",
+    user.contractEnd || "Not yet assigned"
+  );
+
+
+  /* REPORT CLERGY */
+
+  const reportClergy =
+    document.getElementById("reportClergy");
+
+  if(reportClergy){
+
+    reportClergy.value = name;
+
+  }
+
+
+  /* PROFILE */
+
+  loadProfileForm();
+
+}
+
+
+/* =========================================================
+   SET TEXT HELPER
+========================================================= */
+
+function setText(id,value){
+
+  const element =
+    document.getElementById(id);
+
+  if(element){
+
+    element.textContent =
+      value || "";
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD PROFILE
+========================================================= */
+
+function loadProfileForm(){
+
+  if(!user){
+    return;
+  }
+
+
+  const set = (id,value) => {
+
+    const element =
+      document.getElementById(id);
+
+    if(element){
+
+      element.value =
+        value || "";
+
+    }
+
+  };
+
+
+  set(
+    "profFirst",
+    user.firstName
+  );
+
+  set(
+    "profMiddle",
+    user.middleName
+  );
+
+  set(
+    "profLast",
+    user.lastName
+  );
+
+  set(
+    "profSuffix",
+    user.suffix
+  );
+
+  set(
+    "profDOB",
+    user.birthDate
+  );
+
+  set(
+    "profPOB",
+    user.placeOfBirth
+  );
+
+  set(
+    "profGender",
+    user.gender
+  );
+
+  set(
+    "profCivil",
+    user.civilStatus
+  );
+
+  set(
+    "profBaptism",
+    user.baptismDate
+  );
+
+  set(
+    "profBaptismPlace",
+    user.baptismPlace
+  );
+
+  set(
+    "profConfirmation",
+    user.confirmationDate
+  );
+
+  set(
+    "profConfirmationPlace",
+    user.confirmationPlace
+  );
+
+  set(
+    "profAddress",
+    user.address
+  );
+
+  set(
+    "profContact",
+    user.contact
+  );
+
+  set(
+    "profEmail",
+    user.email
+  );
+
+  set(
+    "profOrdination",
+    user.ordinationDate
+  );
+
+  set(
+    "profOrdinationPlace",
+    user.ordinationPlace
+  );
+
+  set(
+    "profAssignment",
+    user.assignment
+  );
+
+  set(
+    "profPreviousAssignment",
+    user.previousAssignment
+  );
+
+  set(
+    "profEducation",
+    user.education
+  );
+
+  set(
+    "profOther",
+    user.otherInformation
+  );
+
+  set(
+    "profUsername",
+    user.username
+  );
+
+  set(
+    "profRecordId",
+    user.id
+  );
+
+  set(
+    "profStatus",
+    user.status
+  );
+
+  set(
+    "profPassword",
+    ""
+  );
+
+}
+
+
+/* =========================================================
+   SAVE PROFILE
+========================================================= */
+
+function saveProfile(e){
+
+  e.preventDefault();
+
+
+  if(!user){
+
+    toast(
+      "Please log in first."
+    );
+
+    return;
+
+  }
+
+
+  const get = id => {
+
+    const element =
+      document.getElementById(id);
+
+    return element
+      ? element.value.trim()
+      : "";
+
+  };
+
+
+  const newPassword =
+    get("profPassword");
+
+
+  if(
+    newPassword &&
+    newPassword.length < 6
+  ){
+
+    toast(
+      "New password must be at least 6 characters."
+    );
+
+    return;
+
+  }
+
+
+  const first =
+    get("profFirst");
+
+  const middle =
+    get("profMiddle");
+
+  const last =
+    get("profLast");
+
+  const suffix =
+    get("profSuffix");
+
+
+  user.firstName = first;
+
+  user.middleName = middle;
+
+  user.lastName = last;
+
+  user.suffix = suffix;
+
+
+  user.name =
+    [
+      first,
+      middle,
+      last,
+      suffix
+    ]
+    .filter(Boolean)
+    .join(" ");
+
+
+  user.birthDate =
+    get("profDOB");
+
+  user.placeOfBirth =
+    get("profPOB");
+
+  user.gender =
+    get("profGender");
+
+  user.civilStatus =
+    get("profCivil");
+
+  user.baptismDate =
+    get("profBaptism");
+
+  user.baptismPlace =
+    get("profBaptismPlace");
+
+  user.confirmationDate =
+    get("profConfirmation");
+
+  user.confirmationPlace =
+    get("profConfirmationPlace");
+
+  user.address =
+    get("profAddress");
+
+  user.contact =
+    get("profContact");
+
+  user.email =
+    get("profEmail");
+
+  user.ordinationDate =
+    get("profOrdination");
+
+  user.ordinationPlace =
+    get("profOrdinationPlace");
+
+  user.assignment =
+    get("profAssignment");
+
+  user.previousAssignment =
+    get("profPreviousAssignment");
+
+  user.education =
+    get("profEducation");
+
+  user.otherInformation =
+    get("profOther");
+
+  user.username =
+    get("profUsername");
+
+
+  if(newPassword){
+
+    user.password =
+      newPassword;
+
+  }
+
+
+  localStorage.setItem(
+    "ednpClergyUser",
+    JSON.stringify(user)
+  );
+
+
+  updateUserUI();
+
+
+  toast(
+    "Profile updated successfully."
+  );
+
+}
+
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll(){
+
+  renderReports();
+
+  checkContractNotice();
+
+}
+
+
+/* =========================================================
+   REPORTS
+========================================================= */
+
+function renderReports(){
+
+  const table =
+    document.getElementById("reportsTable");
+
+
+  if(!table){
+    return;
+  }
+
+
+  table.innerHTML =
+    reports.map(
+      (report,index) => `
+
+        <tr>
+
+          <td>
+            ${report.period}
+          </td>
+
+          <td>
+            <b>
+              ${report.file}
+            </b>
+          </td>
+
+          <td>
+            ${report.date}
+          </td>
+
+          <td>
+            <span class="badge green">
+              ${report.status}
+            </span>
+          </td>
+
+          <td>
+
+            <button
+              class="btn secondary"
+              onclick="viewReport(${index})"
+            >
+              View
+            </button>
+
+          </td>
+
+        </tr>
+
+      `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   OPEN REPORT
+========================================================= */
+
+function openReport(){
+
+  document
+    .getElementById("reportModal")
+    .classList.add("show");
+
+}
+
+
+/* =========================================================
+   SUBMIT REPORT
+========================================================= */
+
+function submitReport(e){
+
+  e.preventDefault();
+
+
+  const period =
+    document.getElementById(
+      "reportQuarter"
+    ).value;
+
+
+  const fileInput =
+    document.getElementById(
+      "reportFile"
+    );
+
+
+  const file =
+    fileInput.files[0];
+
+
+  if(!period || !file){
+
+    toast(
+      "Please select a period and upload the report document."
+    );
+
+    return;
+
+  }
+
+
+  const ext =
+    file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+
+  const allowed = [
+    "pdf",
+    "doc",
+    "docx",
+    "xls",
+    "xlsx"
+  ];
+
+
+  if(!allowed.includes(ext)){
+
+    toast(
+      "Invalid file type. Upload PDF, DOC, DOCX, XLS, or XLSX."
+    );
+
+    return;
+
+  }
+
+
+  reports.unshift({
+
+    period:period,
+
+    file:file.name,
+
+    date:"August 18, 2026",
+
+    status:"Submitted"
+
+  });
+
+
+  closeModal(
+    "reportModal"
+  );
+
+
+  renderReports();
+
+
+  toast(
+    "Quarterly report uploaded successfully."
+  );
+
+
+  e.target.reset();
+
+}
+
+
+/* =========================================================
+   VIEW REPORT
+========================================================= */
+
+function viewReport(index){
+
+  const report =
+    reports[index];
+
+
+  if(report){
+
+    toast(
+      "Opening: " + report.file
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   VISA
+   Kept for future use.
+========================================================= */
+
+function openVisa(){
+
+  const modal =
+    document.getElementById(
+      "visaModal"
+    );
+
+
+  modal.classList.add("show");
+
+
+  const allowed =
+    user &&
+    user.status === "Assigned Abroad";
+
+
+  document
+    .getElementById("visaAllowed")
+    .classList
+    .toggle(
+      "hidden",
+      !allowed
+    );
+
+
+  document
+    .getElementById("visaBlocked")
+    .classList
+    .toggle(
+      "hidden",
+      allowed
+    );
+
+}
+
+
+/* =========================================================
+   SUBMIT VISA
+========================================================= */
+
+function submitVisa(e){
+
+  e.preventDefault();
+
+
+  if(
+    !user ||
+    user.status !== "Assigned Abroad"
+  ){
+
+    toast(
+      "Submission blocked: status is not Assigned Abroad."
+    );
+
+    return;
+
+  }
+
+
+  closeModal(
+    "visaModal"
+  );
+
+
+  toast(
+    "Visa support letter request submitted."
+  );
+
+
+  e.target.reset();
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+function closeModal(id){
+
+  const modal =
+    document.getElementById(id);
+
+
+  if(modal){
+
+    modal.classList.remove("show");
+
+  }
+
+}
+
+
+/* =========================================================
+   CONTRACT NOTICE
+========================================================= */
+
+function checkContractNotice(){
+
+  const notice =
+    document.getElementById(
+      "expiryNotice"
+    );
+
+
+  const contract =
+    document.getElementById(
+      "contractMessage"
+    );
+
+
+  if(!notice || !contract){
+    return;
+  }
+
+
+  notice.classList.add(
+    "hidden"
+  );
+
+
+  contract.textContent =
+    "No expiry notice yet";
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function toast(message){
+
+  const element =
+    document.getElementById(
+      "toast"
+    );
+
+
+  element.textContent =
+    message;
+
+
+  element.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    () => {
+
+      element.classList.remove(
+        "show"
+      );
+
+    },
+    2600
+  );
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+========================================================= */
+
+document
+  .querySelectorAll(".modal-bg")
+  .forEach(modal => {
+
+    modal.addEventListener(
+      "click",
+      e => {
+
+        if(e.target === modal){
+
+          modal.classList.remove(
+            "show"
+          );
+
+        }
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   AUTO LOGIN / INITIALIZATION
+========================================================= */
+
+(function(){
+
+  const saved =
+    localStorage.getItem(
+      "ednpClergyUser"
+    );
+
+
+  if(saved){
+
+    try{
+
+      user =
+        JSON.parse(saved);
+
+    }
+
+    catch(error){
+
+      console.error(
+        "Invalid saved user data."
+      );
+
+      user = null;
+
+    }
+
+  }
+
+
+  /*
+     DIRECT LOGIN SYSTEM
+
+     If there is already a registered
+     user, show login.
+
+     Otherwise the demo account
+     can still be used:
+
+     clergy / password
+  */
+
+  document
+    .getElementById("login")
+    .classList
+    .remove("hidden");
+
+
+  document
+    .getElementById("app")
+    .classList
+    .add("hidden");
+
+
+  if(user){
+
+    document
+      .getElementById("loginUser")
+      .value =
+        user.username || "";
+
+  }
+
+})();
+
+</script>
+
+</body>
+</html>
