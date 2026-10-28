@@ -1,0 +1,45 @@
+from django.urls import path
+
+from . import views
+
+app_name = 'registrar'
+
+urlpatterns = [
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('clergy-records/', views.clergy_records, name='clergy_records'),
+    path('clergy-records/create/', views.create_record, name='create_record'),
+    path('clergy-records/bulk-accounts/', views.bulk_accounts, name='bulk_accounts'),
+    path('clergy-records/<str:record_id>/link-account/', views.link_account, name='link_account'),
+    path('clergy-records/<str:record_id>/reset-account/', views.reset_account, name='reset_account'),
+    path('clergy-records/<str:record_id>/archive/', views.archive_record, name='archive_record'),
+    path('clergy-records/<str:record_id>/restore/', views.restore_record, name='restore_record'),
+    path('clergy-records/<str:record_id>/ember-letters/upload/', views.upload_ember_letter, name='upload_ember_letter'),
+    path('clergy-records/<str:record_id>/photo/', views.view_profile_picture, name='view_profile_picture'),
+    path('clergy-records/<str:record_id>/', views.record_detail, name='record_detail'),
+    path('documents/', views.documents_overview, name='documents_overview'),
+    path('ordination-requirements/', views.ordination_requirements, name='ordination_requirements'),
+    path('documents/<int:document_id>/view/', views.view_document, name='view_document'),
+    path('documents/<int:document_id>/download/', views.download_document, name='download_document'),
+    path('ember-letters/<int:ember_id>/view/', views.view_ember_letter, name='view_ember_letter'),
+    path('ember-letters/<int:ember_id>/download/', views.download_ember_letter, name='download_ember_letter'),
+    path('ember-letters/<int:ember_id>/delete/', views.delete_ember_letter, name='delete_ember_letter'),
+    path('contract-review/', views.contract_review, name='contract_review'),
+    path('generate-report/', views.generate_report, name='generate_report'),
+    path('generate-report/archive-selected/', views.archive_selected_reports, name='archive_selected_reports'),
+    path('generate-report/archived/delete/', views.delete_archived_reports, name='delete_archived_reports'),
+    path('generate-report/<int:report_id>/view/', views.view_generated_report, name='view_generated_report'),
+    path('generate-report/<int:report_id>/preview/', views.preview_generated_report, name='preview_generated_report'),
+    path('generate-report/<int:report_id>/download/', views.download_generated_report, name='download_generated_report'),
+    path('generate-report/<int:report_id>/archive/', views.archive_generated_report, name='archive_generated_report'),
+    path('generate-report/<int:report_id>/restore/', views.restore_generated_report, name='restore_generated_report'),
+    path('generate-report/<int:report_id>/delete/', views.delete_generated_report, name='delete_generated_report'),
+    path('account-security/', views.account_security, name='account_security'),
+    path('account-security/<int:user_id>/reset/', views.reset_staff_account, name='reset_staff_account'),
+    path('my-profile/', views.my_profile, name='my_profile'),
+    path('change-password/', views.change_password, name='change_password'),
+    path('backup-records/', views.backup_records, name='backup_records'),
+    path('backup-records/database/', views.download_database_backup, name='download_database_backup'),
+    path('backup-records/documents/', views.download_documents_archive, name='download_documents_archive'),
+    path('backup-records/<int:archive_id>/download/', views.download_backup_archive, name='download_backup_archive'),
+    path('backup-records/<int:archive_id>/delete/', views.delete_backup_archive, name='delete_backup_archive'),
+]

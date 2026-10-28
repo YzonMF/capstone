@@ -1,0 +1,26 @@
+{% comment %}
+The verification-code input with its Send / Resend button inside it. Used by every
+code-entry screen, inside a form that also holds a hidden default submit button (so
+pressing Enter verifies instead of re-sending a text).
+
+Needs: sent (has a code been sent yet?), resend (accounts.otp.resend_status),
+       send_value / resend_value (the form action each button posts).
+The button reads "Send code" until a code is out, then "Resend" — greyed and counting
+down until another may be requested, and off for the day once today's codes are used
+up. The server enforces the same rules; this only shows them.
+
+A page that includes this links static/code-field.css and loads static/code-field.js
+(the countdown).
+{% endcomment %}
+<div class="code-wrap">
+  <input id="code" name="code" inputmode="numeric" pattern="[0-9 ]*" maxlength="8" autocomplete="one-time-code"
+         placeholder="{% if sent %}123456{% else %}Send a code first{% endif %}" {% if sent %}required autofocus{% else %}disabled{% endif %}>
+  <button type="submit" class="code-send" name="action" value="{% if sent %}{{ resend_value }}{% else %}{{ send_value }}{% endif %}"
+          {% if sent %}formnovalidate{% endif %} data-wait="{{ resend.wait }}" data-label="{% if sent %}Resend{% else %}Send code{% endif %}"
+          {% if resend.wait or resend.exhausted %}disabled{% endif %}>
+    {% if resend.exhausted %}No more today{% elif resend.wait %}Resend in {{ resend.wait }}s{% elif sent %}Resend{% else %}Send code{% endif %}
+  </button>
+</div>
+{% if resend.exhausted %}
+<p class="code-note">You've used all {{ resend.daily_cap }} codes for today. You can try again in about {{ resend.retry_text }}.</p>
+{% endif %}

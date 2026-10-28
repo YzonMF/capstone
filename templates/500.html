@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDNP — Something Went Wrong</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: Inter, Segoe UI, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+        background: radial-gradient(circle at 15% 20%, rgba(47, 111, 237, 0.22), transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(35, 155, 98, 0.12), transparent 55%),
+                    linear-gradient(135deg, #0d1f33 0%, #12293f 55%, #16324c 100%);
+        color: #f1f5f9;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .error-card {
+        background: #1a3a58;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+        max-width: 560px;
+        width: 100%;
+        padding: 48px 40px;
+        text-align: center;
+      }
+      .icon-wrap {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 24px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.14);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #f87171;
+      }
+      .icon-wrap svg {
+        width: 36px;
+        height: 36px;
+        fill: currentColor;
+      }
+      .portal-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 14px;
+        letter-spacing: -0.01em;
+      }
+      p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #cbd5e1;
+        margin-bottom: 28px;
+      }
+      .btn-row {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        border: none;
+      }
+      .btn-primary {
+        background: #2f6fed;
+        color: #ffffff;
+      }
+      .btn-primary:hover {
+        background: #255ed1;
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+      .card-foot {
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 12px;
+        color: #64748b;
+      }
+      @media (max-width: 480px) {
+        .error-card { padding: 32px 20px; border-radius: 18px; }
+        h1 { font-size: 22px; }
+        .btn-row { flex-direction: column; }
+        .btn { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-card">
+      <div class="portal-badge">EDNP Portal Notice</div>
+      <div class="icon-wrap" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+      </div>
+      <h1>Something Went Wrong</h1>
+      <p>
+        The system encountered an unexpected issue while processing your request.
+        Our team has been notified. Please try refreshing the page or returning to the portal.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="window.location.reload()">
+          Try Again
+        </button>
+        <a class="btn btn-secondary" href="/">
+          Return to Portal
+        </a>
+      </div>
+      <div class="card-foot">
+        EDNP — Electronic Diocese Network Portal
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EDNP Clergy Record - {{ profile.full_name }}</title>
+<link rel="stylesheet" href="{% static 'clergy/css/print-record.css' %}">
+</head>
+<body>
+  <div class="actions">
+    <button type="button" class="print-btn" data-print-page>Print Record</button>
+    {% if download_url %}<a class="download-btn" href="{{ download_url }}">Download PDF</a>{% endif %}
+  </div>
+
+  <div class="header">
+    <h1>EDNP Clergy Record</h1>
+    <div class="subtitle">Personal Copy — {{ profile.full_name }}</div>
+    <div class="subtitle">This printout contains information from the logged-in clergy user's own record.</div>
+  </div>
+
+  <h2>Clergy Record</h2>
+  <table>
+    <tr><th>Clergy ID</th><td>{{ profile.record.id|default:"Pending" }}</td></tr>
+    <tr><th>Full Name</th><td>{{ profile.full_name }}</td></tr>
+    <tr><th>Current Rank</th><td>{{ profile.record.get_rank_display|default:"—" }}</td></tr>
+    <tr><th>Status</th><td>{{ profile.record.status|default:"—" }}</td></tr>
+    <tr><th>Deanery</th><td>{{ profile.record.deanery|default:"—" }}</td></tr>
+    <tr><th>Deployment</th><td>{{ profile.record.assignment|default:"—" }}</td></tr>
+    <tr><th>Verification</th><td>{{ profile.verification }}</td></tr>
+    <tr><th>Contract End</th><td>{{ profile.record.contract_end|default:"—" }}</td></tr>
+    <tr><th>Retirement Date</th><td>{{ profile.record.retirement_date|default:"—" }}</td></tr>
+    <tr><th>Date of Birth</th><td>{{ profile.record.date_of_birth|default:"—" }}</td></tr>
+    <tr><th>Place of Birth</th><td>{{ profile.place_of_birth|default:"—" }}</td></tr>
+    <tr><th>Gender</th><td>{{ profile.record.gender|default:"—" }}</td></tr>
+    <tr><th>Civil Status</th><td>{{ profile.civil_status|default:"—" }}</td></tr>
+    <tr><th>Baptism Date</th><td>{{ profile.record.baptism_date|default:"—" }}</td></tr>
+    <tr><th>Baptism Place</th><td>{{ profile.baptism_place|default:"—" }}</td></tr>
+    <tr><th>Confirmation Date</th><td>{{ profile.record.confirmation_date|default:"—" }}</td></tr>
+    <tr><th>Confirmation Place</th><td>{{ profile.confirmation_place|default:"—" }}</td></tr>
+    <tr><th>Address</th><td>{{ profile.record.address|default:"—" }}</td></tr>
+    <tr><th>Contact Number</th><td>{{ profile.record.phone|default:"—" }}</td></tr>
+    <tr><th>Email Address</th><td>{{ profile.record.email|default:"—" }}</td></tr>
+    {% if profile.record.rank == 'postulancy' %}
+    <tr><th>Holy Orders Status</th><td>Postulancy (Lay Candidate in Preparation)</td></tr>
+    {% else %}
+      {% if profile.record.can_have_diaconate %}
+      <tr><th>Diaconate Ordination</th><td>{{ profile.record.diaconate_date|default:"—" }}</td></tr>
+      <tr><th>Diaconate Place</th><td>{{ profile.record.diaconate_place|default:"—" }}</td></tr>
+      {% endif %}
+      {% if profile.record.can_have_priesthood %}
+      <tr><th>Priesthood Ordination</th><td>{{ profile.record.ordination_date|default:"—" }}</td></tr>
+      <tr><th>Ordination Place</th><td>{{ profile.record.ordination_place|default:"—" }}</td></tr>
+      {% endif %}
+      {% if profile.record.can_have_consecration %}
+      <tr><th>Consecration Date</th><td>{{ profile.record.consecration_date|default:"—" }}</td></tr>
+      {% endif %}
+      <tr><th>Date Admitted as Holy Order</th><td>{{ profile.record.holy_orders_date|default:"—" }}</td></tr>
+      <tr><th>Ordaining / Presiding Bishop</th><td>{{ profile.record.bishop_name|default:"—" }}</td></tr>
+    {% endif %}
+    <tr><th>Years of Service</th><td>{{ profile.record.years_of_service_display }}</td></tr>
+    <tr><th>Educational Background</th><td>{{ profile.education|default:"—" }}</td></tr>
+    <tr><th>Marriage Date</th><td>{{ profile.marriage_date|default:"—" }}</td></tr>
+    <tr><th>Marriage Place</th><td>{{ profile.marriage_place|default:"—" }}</td></tr>
+    <tr><th>Spouse</th><td>{{ profile.spouse_name|default:"—" }}</td></tr>
+    <tr><th>Spouse Date of Birth</th><td>{{ profile.spouse_birth_date|default:"—" }}</td></tr>
+    <tr><th>Children (Notes)</th><td>{{ profile.children_names|default:"—"|linebreaksbr }}</td></tr>
+    <tr><th>SSS No.</th><td>{{ profile.sss_number|default:"—" }}</td></tr>
+    <tr><th>PhilHealth No.</th><td>{{ profile.philhealth_number|default:"—" }}</td></tr>
+    <tr><th>Pag-IBIG No.</th><td>{{ profile.pagibig_number|default:"—" }}</td></tr>
+    <tr><th>Reason for Leave</th><td>{{ profile.record.leave_reason|default:"—" }}</td></tr>
+  </table>
+
+  <h2>Deployments &amp; Station History</h2>
+  <table>
+    <thead><tr><th>Parish / Station / Mission</th><th>Place / Location</th><th>Role</th><th>Period</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for dep in profile.record.deployments.all %}
+      <tr>
+        <td><b>{{ dep.station_name }}</b>{% if dep.notes %}<br><small>{{ dep.notes }}</small>{% endif %}</td>
+        <td>{{ dep.place_name|default:"—" }}</td>
+        <td>{{ dep.role }}</td>
+        <td>{% if dep.start_date %}{{ dep.start_date|date:"M Y" }} to {% endif %}{% if dep.is_current %}Present{% elif dep.end_date %}{% if not dep.start_date %}Ended {% endif %}{{ dep.end_date|date:"M Y" }}{% else %}—{% endif %}</td>
+        <td>{% if dep.is_current %}Current{% else %}—{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">No deployments recorded.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Children</h2>
+  <table>
+    <thead><tr><th>Name</th><th>Date of Birth</th><th>Age</th><th>Gender</th></tr></thead>
+    <tbody>
+      {% for child in profile.children.all %}
+      <tr>
+        <td><b>{{ child.name }}</b></td>
+        <td>{{ child.birth_date|default:"—" }}</td>
+        <td>{{ child.age|default:"—" }}</td>
+        <td>{{ child.gender|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">No children recorded.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Educational Background (Degrees &amp; Graduations)</h2>
+  <table>
+    <thead><tr><th>Degree / Program</th><th>Institution / Seminary / School</th><th>Place / Location</th><th>Year Graduated</th></tr></thead>
+    <tbody>
+      {% for edu in profile.educations.all %}
+      <tr>
+        <td><b>{{ edu.degree }}</b></td>
+        <td>{{ edu.institution }}</td>
+        <td>{{ edu.place|default:"—" }}</td>
+        <td>{{ edu.year_graduated|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">No degrees recorded.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Requirements &amp; Attachments</h2>
+  <table>
+    <thead><tr><th>Document</th><th>Status</th><th>Submitted</th></tr></thead>
+    <tbody>
+      {% for item in checklist %}
+      <tr>
+        <td>{{ item.document_type.name }}</td>
+        <td>{{ item.status }}</td>
+        <td>{{ item.document.submitted_date|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3">No requirements configured.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>Privacy Notice:</b> This is a personal copy of the logged-in clergy user's own record.
+    Other clergy records and Registrar-only functions are not included.
+  </div>
+
+<script src="{% static 'print-page.js' %}"></script>
+</body>
+</html>
