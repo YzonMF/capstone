@@ -36,7 +36,7 @@
       <h3 class="doc-section-title"><i class="fa-solid fa-user"></i>Own Requirements &amp; Ordination Attachments</h3>
       <div class="doc-grid">
       {% for item in checklist.clergy %}
-      <div class="doc-card">
+      <div class="doc-card" id="doc-card-{{ item.document_type.id }}" data-doc-card-type="{{ item.document_type.id }}" data-doc-title="{{ item.document_type.name }}">
         <div class="doc-card-head">
           <b>{{ item.document_type.name }}</b>
           {% if item.document_type.is_noted_only %}

@@ -81,6 +81,66 @@
   .date-att-bar.missing .att-btn.upload:hover {
     background: #dbeafe;
   }
+  .section-nav-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin: 0 0 16px 0;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+  .section-nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .section-nav-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  .nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    padding: 5px 11px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    background: #f1f5f9;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .nav-pill:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .nav-pill.active {
+    background: #2f6fed;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(47, 111, 237, 0.28);
+  }
+  @keyframes fieldFlashHighlight {
+    0% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.45); background-color: #f0fdf4; }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  }
+  .field-highlight-flash {
+    animation: fieldFlashHighlight 1.8s ease-out;
+    border-radius: 8px;
+  }
   </style>
 {% endblock %}
 {% block content %}
@@ -115,12 +175,24 @@
         <button type="button" id="tabBtnEmber" data-tab="ember"><i class="fa-solid fa-envelope-open-text"></i> Ember Letters <span class="badge abroad-b" data-ember-tab-badge>{{ ember_summary.uploaded }}/{{ ember_summary.target }}</span></button>
       </div>
       <div id="tabPersonal" class="tab-content">
+        <nav class="section-nav-sticky" id="personalSectionNav" aria-label="Quick section navigation">
+          <div class="section-nav-inner">
+            <span class="section-nav-label"><i class="fa-solid fa-compass"></i> Jump to:</span>
+            <a href="#sec-reg-identity" class="nav-pill active"><i class="fa-solid fa-id-card"></i> Identity</a>
+            <a href="#sec-reg-contact" class="nav-pill"><i class="fa-solid fa-address-book"></i> Contact</a>
+            <a href="#sec-reg-sacraments" class="nav-pill"><i class="fa-solid fa-water"></i> Sacraments</a>
+            <a href="#sec-reg-orders" class="nav-pill"><i class="fa-solid fa-church"></i> Holy Orders</a>
+            <a href="#sec-reg-status" class="nav-pill"><i class="fa-solid fa-briefcase"></i> Status &amp; Tenure</a>
+            <a href="#sec-reg-deployments" class="nav-pill"><i class="fa-solid fa-map-location-dot"></i> Deployments</a>
+            <a href="#sec-reg-family" class="nav-pill"><i class="fa-solid fa-people-roof"></i> Family &amp; Education</a>
+          </div>
+        </nav>
         <form method="post" id="recordPersonalForm">
           {% csrf_token %}
           <div class="section-card">
             <h4><i class="fa-solid fa-user"></i> Personal &amp; Contact Information</h4>
             <div class="edit-grid">
-              <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+              <div class="edit-field full" id="sec-reg-identity" style="scroll-margin-top: 70px; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-id-card" style="color: #2f6fed;"></i> Identity &amp; Basic Details
               </div>
               <div class="edit-field">
@@ -134,13 +206,13 @@
        type="date"
        value="{{ record.date_of_birth|date:'Y-m-d' }}">
                 {% with att=record.date_attachments_map.date_of_birth %}
-                <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                   <span class="att-status">
                     {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                   </span>
                   <div class="att-actions">
                     {% if att.is_uploaded %}
-                      <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                      <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                       {% if att.doc_type %}
                       <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                       {% endif %}
@@ -155,7 +227,7 @@
               </div>
               <div class="edit-field"><label>Gender</label><select name="gender"><option value="">Select</option><option {% if record.gender == 'Male' %}selected{% endif %}>Male</option><option {% if record.gender == 'Female' %}selected{% endif %}>Female</option></select></div>
 
-              <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+              <div class="edit-field full" id="sec-reg-contact" style="scroll-margin-top: 70px; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-address-book" style="color: #2f6fed;"></i> Contact &amp; Residential Information
               </div>
               <div class="edit-field full">
@@ -181,7 +253,7 @@
                 <label>Email Address</label><input name="email" type="email" value="{{ record.email|default:'' }}">
               </div>
 
-              <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+              <div class="edit-field full" id="sec-reg-sacraments" style="scroll-margin-top: 70px; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-water" style="color: #2f6fed;"></i> Sacramental Records
               </div>
               <div class="edit-field">
@@ -189,13 +261,13 @@
        type="date"
        value="{{ record.baptism_date|date:'Y-m-d' }}">
                 {% with att=record.date_attachments_map.baptism_date %}
-                <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                   <span class="att-status">
                     {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                   </span>
                   <div class="att-actions">
                     {% if att.is_uploaded %}
-                      <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                      <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                       {% if att.doc_type %}
                       <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                       {% endif %}
@@ -213,13 +285,13 @@
        type="date"
        value="{{ record.confirmation_date|date:'Y-m-d' }}">
                 {% with att=record.date_attachments_map.confirmation_date %}
-                <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                   <span class="att-status">
                     {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                   </span>
                   <div class="att-actions">
                     {% if att.is_uploaded %}
-                      <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                      <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                       {% if att.doc_type %}
                       <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                       {% endif %}
@@ -234,7 +306,7 @@
               </div>
             </div>
           </div>
-          <div class="section-card">
+          <div class="section-card" id="sec-reg-orders" style="scroll-margin-top: 70px;">
             <h4><i class="fa-solid fa-church"></i> Holy Orders &amp; Ordination History</h4>
             <div class="edit-grid">
 
@@ -254,13 +326,13 @@
                   <input name="diaconate_date" id="diaconateDateInput" type="date" value="{{ record.diaconate_date|date:'Y-m-d' }}">
                   {% with att=record.date_attachments_map.diaconate_date %}
                   {% if att %}
-                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                     <span class="att-status">
                       {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                     </span>
                     <div class="att-actions">
                       {% if att.is_uploaded %}
-                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                         {% if att.doc_type %}
                         <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                         {% endif %}
@@ -290,13 +362,13 @@
                   <input name="ordination_date" id="priesthoodDateInput" type="date" value="{{ record.ordination_date|date:'Y-m-d' }}">
                   {% with att=record.date_attachments_map.ordination_date %}
                   {% if att %}
-                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                     <span class="att-status">
                       {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                     </span>
                     <div class="att-actions">
                       {% if att.is_uploaded %}
-                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                         {% if att.doc_type %}
                         <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                         {% endif %}
@@ -326,13 +398,13 @@
                   <input name="consecration_date" id="consecrationDateInput" type="date" value="{{ record.consecration_date|date:'Y-m-d' }}">
                   {% with att=record.date_attachments_map.consecration_date %}
                   {% if att %}
-                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                     <span class="att-status">
                       {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                     </span>
                     <div class="att-actions">
                       {% if att.is_uploaded %}
-                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                         {% if att.doc_type %}
                         <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                         {% endif %}
@@ -358,13 +430,13 @@
                   <input name="holy_orders_date" type="date" value="{{ record.holy_orders_date|date:'Y-m-d' }}">
                   {% with att=record.date_attachments_map.holy_orders_date %}
                   {% if att %}
-                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+                  <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
                     <span class="att-status">
                       {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
                     </span>
                     <div class="att-actions">
                       {% if att.is_uploaded %}
-                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                        <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                         {% if att.doc_type %}
                         <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                         {% endif %}
@@ -386,7 +458,7 @@
 
             </div>
           </div>
-          <div class="section-card">
+          <div class="section-card" id="sec-reg-status" style="scroll-margin-top: 70px;">
             <h4><i class="fa-solid fa-briefcase"></i> Deployment &amp; Official Status</h4>
             <div class="edit-grid">
               <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
@@ -460,7 +532,7 @@
         </form>
 
         <!-- Deployments & Station History -->
-        <div class="section-card" style="margin-top:24px;">
+        <div class="section-card" id="sec-reg-deployments" style="margin-top:24px; scroll-margin-top: 70px;">
           <div class="section-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
               <h4 style="margin:0;"><i class="fa-solid fa-map-location-dot"></i> Deployments &amp; Station History</h4>
@@ -505,7 +577,7 @@
         </div>
 
         <!-- Family & Educational Background (Filed by Clergy) -->
-        <div class="section-card" style="margin-top:24px;">
+        <div class="section-card" id="sec-reg-family" style="margin-top:24px; scroll-margin-top: 70px;">
           <div class="section-head" style="margin-bottom:8px;">
             <h4 style="margin:0;"><i class="fa-solid fa-people-roof"></i> Family &amp; Education <span class="badge blue" style="font-size:10px;font-weight:600;margin-left:8px;">Filed by Clergy</span></h4>
           </div>
@@ -597,7 +669,7 @@
         <h4 class="doc-group-title"><i class="fa-solid fa-user"></i>Clergy Submissions</h4>
         <div class="doc-grid">
           {% for item in checklist.clergy %}
-            <div class="doc-card">
+            <div class="doc-card" id="doc-card-{{ item.document_type.id }}" data-doc-card-type="{{ item.document_type.id }}" data-doc-title="{{ item.document_type.name }}">
               <div class="doc-card-head">
                 <b>{{ item.document_type.name }}</b>
                 {% if item.document_type.is_noted_only %}
@@ -664,7 +736,7 @@
         <h4 class="doc-group-title"><i class="fa-solid fa-building-columns"></i>Registrar Uploads</h4>
         <div class="doc-grid">
           {% for item in checklist.registrar %}
-            <div class="doc-card">
+            <div class="doc-card" id="doc-card-{{ item.document_type.id }}" data-doc-card-type="{{ item.document_type.id }}" data-doc-title="{{ item.document_type.name }}">
               <div class="doc-card-head">
                 <b>{{ item.document_type.name }}</b>
                 {% if item.document_type.is_noted_only %}
@@ -825,7 +897,7 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="quickUploadForm">
       {% csrf_token %}
       <input type="hidden" name="action" value="upload_attachment">
       <input type="hidden" name="document_type" id="quickUploadDocTypeId" value="">
@@ -849,43 +921,297 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{% static 'registrar/js/clergy-records.js' %}"></script>
-  <script src="{% static 'registrar/js/record-detail.js' %}"></script>
-  <script src="{% static 'ember-letters.js' %}"></script>
-  <script src="{% static 'clergy/js/address-picker.js' %}"></script>
+  <script src="{% static 'registrar/js/clergy-records.js' %}?v=6"></script>
+  <script src="{% static 'registrar/js/record-detail.js' %}?v=6"></script>
+  <script src="{% static 'ember-letters.js' %}?v=6"></script>
+  <script src="{% static 'clergy/js/address-picker.js' %}?v=6"></script>
   <script>
-  document.addEventListener('click', function(e) {
-    const btn = e.target.closest('[data-quick-upload]');
-    if (btn) {
+  (function() {
+    const DRAFT_KEY = 'ednp_form_draft_' + window.location.pathname;
+    const RETURN_FIELD_KEY = 'ednp_return_input_' + window.location.pathname;
+    const mainForm = document.getElementById('recordPersonalForm');
+    let activeTriggerFieldEl = null;
+    let activeTriggerInputName = '';
+
+    const rankSelect = document.getElementById('rankSelect');
+    function updateOrdinationStages() {
+      if (!rankSelect) return;
+      const rank = rankSelect.value;
+      const post = document.getElementById('stage-postulancy');
+      const diac = document.getElementById('stage-diaconate');
+      const priest = document.getElementById('stage-priesthood');
+      const bis = document.getElementById('stage-episcopate');
+      const over = document.getElementById('stage-oversight');
+
+      if (post) post.style.display = (rank === 'postulancy') ? 'block' : 'none';
+      if (diac) diac.style.display = (['deacon', 'priest', 'bishop'].includes(rank)) ? 'contents' : 'none';
+      if (priest) priest.style.display = (['priest', 'bishop'].includes(rank)) ? 'contents' : 'none';
+      if (bis) bis.style.display = (rank === 'bishop') ? 'contents' : 'none';
+      if (over) over.style.display = (rank !== 'postulancy') ? 'contents' : 'none';
+    }
+    if (rankSelect) {
+      rankSelect.addEventListener('change', updateOrdinationStages);
+      updateOrdinationStages();
+    }
+
+    function saveDraftToSession() {
+      if (!mainForm) return;
+      const draft = {};
+      mainForm.querySelectorAll('input[name], select[name], textarea[name]').forEach(function(el) {
+        if (el.name === 'csrfmiddlewaretoken' || el.type === 'file' || el.readOnly) return;
+        if (el.type === 'checkbox' || el.type === 'radio') {
+          if (el.checked) draft[el.name] = el.value;
+        } else {
+          draft[el.name] = el.value;
+        }
+      });
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      } catch (_e) {}
+    }
+
+    function restoreDraftFromSession() {
+      if (!mainForm) return false;
+      let raw = null;
+      try {
+        raw = sessionStorage.getItem(DRAFT_KEY);
+      } catch (_e) {}
+      if (!raw) return false;
+
+      try {
+        const draft = JSON.parse(raw);
+        if (!draft || typeof draft !== 'object') return false;
+
+        if (draft.deanery !== undefined) {
+          const deaneryEl = document.getElementById('editDeanery');
+          if (deaneryEl) {
+            deaneryEl.value = draft.deanery;
+            if (typeof updateParishOptions === 'function') {
+              updateParishOptions('editDeanery', 'editAssignment');
+            }
+          }
+        }
+        if (draft.assignment !== undefined) {
+          const assignEl = document.getElementById('editAssignment');
+          if (assignEl) {
+            const exists = Array.from(assignEl.options).some(function(o) { return o.value === draft.assignment; });
+            if (!exists && draft.assignment) {
+              const opt = document.createElement('option');
+              opt.value = draft.assignment;
+              opt.textContent = draft.assignment;
+              assignEl.appendChild(opt);
+            }
+            assignEl.value = draft.assignment;
+          }
+        }
+
+        Object.keys(draft).forEach(function(name) {
+          if (name === 'deanery' || name === 'assignment') return;
+          const el = mainForm.querySelector('[name="' + CSS.escape(name) + '"]');
+          if (el && !el.readOnly && el.type !== 'file') {
+            el.value = draft[name];
+          }
+        });
+
+        updateOrdinationStages();
+        if (typeof toggleLeaveReason === 'function') {
+          toggleLeaveReason('editStatus', 'editLeaveReasonField');
+        }
+        const saveBar = document.querySelector('.floating-save-bar');
+        if (saveBar) saveBar.classList.add('visible');
+        return true;
+      } catch (_e) {
+        return false;
+      }
+    }
+
+    function focusAndHighlightField(fieldEl, inputEl) {
+      if (!fieldEl && !inputEl) return;
+      const container = fieldEl || (inputEl && inputEl.closest('.edit-field, .field, .doc-card'));
+      const target = inputEl || (container && container.querySelector('input:not([type="hidden"]):not([type="file"]):not([readonly]), select, textarea'));
+      if (container) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        container.classList.remove('field-highlight-flash');
+        void container.offsetWidth;
+        container.classList.add('field-highlight-flash');
+      } else if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (target) {
+        setTimeout(function() {
+          try { target.focus({ preventScroll: true }); } catch (_e) { target.focus(); }
+        }, 220);
+      }
+    }
+
+    if (mainForm) {
+      mainForm.addEventListener('input', saveDraftToSession);
+      mainForm.addEventListener('change', saveDraftToSession);
+      mainForm.addEventListener('submit', function() {
+        try {
+          sessionStorage.removeItem(DRAFT_KEY);
+          sessionStorage.removeItem(RETURN_FIELD_KEY);
+        } catch (_e) {}
+      });
+    }
+
+    document.getElementById('floatingDiscardBtn')?.addEventListener('click', function() {
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem(RETURN_FIELD_KEY);
+      } catch (_e) {}
+    }, true);
+
+    restoreDraftFromSession();
+
+    try {
+      const savedInputName = sessionStorage.getItem(RETURN_FIELD_KEY);
+      if (savedInputName) {
+        sessionStorage.removeItem(RETURN_FIELD_KEY);
+        if (typeof selectTab === 'function') selectTab('personal');
+        const inputEl = mainForm ? mainForm.querySelector('[name="' + CSS.escape(savedInputName) + '"]') : null;
+        if (inputEl) {
+          setTimeout(function() {
+            focusAndHighlightField(inputEl.closest('.edit-field, .field'), inputEl);
+          }, 120);
+        }
+      }
+    } catch (_e) {}
+
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-quick-upload]');
+      if (!btn) return;
       const docTypeId = btn.dataset.quickUpload;
       const docName = btn.dataset.docName;
       const input = document.getElementById('quickUploadDocTypeId');
       const title = document.getElementById('quickUploadDocTitle');
       if (input) input.value = docTypeId;
       if (title) title.textContent = 'Upload ' + docName;
+
+      activeTriggerFieldEl = btn.closest('.edit-field, .field');
+      const fieldInput = activeTriggerFieldEl ? activeTriggerFieldEl.querySelector('input[name], select[name], textarea[name]') : null;
+      activeTriggerInputName = fieldInput ? fieldInput.name : '';
+
+      saveDraftToSession();
+      try {
+        if (activeTriggerInputName) {
+          sessionStorage.setItem(RETURN_FIELD_KEY, activeTriggerInputName);
+        }
+      } catch (_e) {}
+
       openModal('quickUploadModal');
+    });
+
+    function applyUploadedAttachmentToDOM(data) {
+      const docTypeId = String(data.document_type_id);
+      document.querySelectorAll('.date-att-bar[data-att-doc-type="' + docTypeId + '"]').forEach(function(bar) {
+        bar.className = 'date-att-bar uploaded';
+        const statusEl = bar.querySelector('.att-status');
+        if (statusEl) {
+          statusEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + data.document_name + ' attached <span class="preview-confirmed-tag"><i class="fa-solid fa-check"></i> Just uploaded</span>';
+        }
+        const actionsEl = bar.querySelector('.att-actions');
+        if (actionsEl) {
+          actionsEl.innerHTML =
+            '<a href="' + data.view_url + '" target="_blank" class="att-btn view" data-doc-name="' + data.document_name + '"><i class="fa-solid fa-eye"></i> View</a> ' +
+            '<button type="button" class="att-btn replace" data-quick-upload="' + docTypeId + '" data-doc-name="' + data.document_name + '"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>';
+        }
+      });
+
+      document.querySelectorAll('.doc-card[data-doc-card-type="' + docTypeId + '"]').forEach(function(card) {
+        const badge = card.querySelector('.doc-card-head .badge');
+        if (badge) {
+          badge.className = 'badge active-b';
+          badge.textContent = 'Submitted';
+        }
+        let fileDiv = card.querySelector('.doc-card-file');
+        if (!fileDiv) {
+          fileDiv = document.createElement('div');
+          fileDiv.className = 'doc-card-file';
+          const uploadForm = card.querySelector('.doc-card-upload');
+          if (uploadForm) card.insertBefore(fileDiv, uploadForm);
+        }
+        fileDiv.innerHTML = '<i class="fa-solid fa-file-lines"></i> Submitted ' + data.submitted_date + (data.notes ? '<br>' + data.notes : '');
+
+        let rowActions = card.querySelector('.row-actions');
+        if (!rowActions) {
+          rowActions = document.createElement('div');
+          rowActions.className = 'row-actions';
+          const uploadForm = card.querySelector('.doc-card-upload');
+          if (uploadForm) card.insertBefore(rowActions, uploadForm);
+        }
+        rowActions.innerHTML =
+          '<a class="btn small secondary" href="' + data.view_url + '" target="_blank" rel="noopener" data-doc-name="' + data.document_name + '"><i class="fa-solid fa-eye"></i> View</a>' +
+          '<a class="btn small secondary" href="' + data.download_url + '"><i class="fa-solid fa-download"></i> Download</a>' +
+          '<button type="button" class="btn small secondary" data-print-url="' + data.view_url + '"><i class="fa-solid fa-print"></i> Print</button>';
+        const submitBtn = card.querySelector('.doc-card-upload button');
+        if (submitBtn) {
+          submitBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> Replace';
+        }
+      });
+
+      if (data.summary_submitted !== undefined && data.summary_total !== undefined) {
+        const tabDocBadge = document.querySelector('#tabBtnDocuments .badge');
+        if (tabDocBadge) {
+          tabDocBadge.textContent = data.summary_submitted + '/' + data.summary_total;
+        }
+      }
     }
-  });
 
-  const rankSelect = document.getElementById('rankSelect');
-  function updateOrdinationStages() {
-    if (!rankSelect) return;
-    const rank = rankSelect.value;
-    const post = document.getElementById('stage-postulancy');
-    const diac = document.getElementById('stage-diaconate');
-    const priest = document.getElementById('stage-priesthood');
-    const bis = document.getElementById('stage-episcopate');
-    const over = document.getElementById('stage-oversight');
+    const quickUploadForm = document.getElementById('quickUploadForm');
+    if (quickUploadForm) {
+      quickUploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
 
-    if (post) post.style.display = (rank === 'postulancy') ? 'block' : 'none';
-    if (diac) diac.style.display = (['deacon', 'priest', 'bishop'].includes(rank)) ? 'contents' : 'none';
-    if (priest) priest.style.display = (['priest', 'bishop'].includes(rank)) ? 'contents' : 'none';
-    if (bis) bis.style.display = (rank === 'bishop') ? 'contents' : 'none';
-    if (over) over.style.display = (rank !== 'postulancy') ? 'contents' : 'none';
-  }
-  if (rankSelect) {
-    rankSelect.addEventListener('change', updateOrdinationStages);
-    updateOrdinationStages();
-  }
+        const btn = quickUploadForm.querySelector('button[type="submit"]');
+        const origHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading…';
+        }
+
+        try {
+          const formData = new FormData(quickUploadForm);
+          const res = await fetch(quickUploadForm.getAttribute('action') || window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            if (typeof showToast === 'function') {
+              showToast((data && data.error) || 'Could not upload file. Please check the file and try again.', 'error');
+            }
+            return;
+          }
+
+          try { sessionStorage.removeItem(RETURN_FIELD_KEY); } catch (_e) {}
+          applyUploadedAttachmentToDOM(data);
+          if (typeof showToast === 'function') {
+            showToast(data.message || 'Document uploaded successfully.', 'success');
+          }
+          quickUploadForm.reset();
+          if (typeof closeModal === 'function') closeModal('quickUploadModal');
+
+          const targetInput = (activeTriggerInputName && mainForm)
+            ? mainForm.querySelector('[name="' + CSS.escape(activeTriggerInputName) + '"]')
+            : null;
+          const fallbackField = activeTriggerFieldEl ||
+            document.querySelector('.date-att-bar[data-att-doc-type="' + data.document_type_id + '"]')?.closest('.edit-field, .field');
+          focusAndHighlightField(fallbackField, targetInput);
+        } catch (_err) {
+          if (typeof showToast === 'function') {
+            showToast('Network error while uploading. Please try again.', 'error');
+          }
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+          }
+        }
+      });
+    }
+  })();
   </script>
 {% endblock %}

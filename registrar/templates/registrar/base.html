@@ -80,7 +80,7 @@
     {% if messages %}
       <div id="flash-messages" hidden>{% for message in messages %}<span data-level="{{ message.tags }}">{{ message }}</span>{% endfor %}</div>
     {% endif %}
-    <script src="{% static 'registrar/js/ui.js' %}"></script>
+    <script src="{% static 'registrar/js/ui.js' %}?v=6"></script>
     <script src="{% static 'skeleton.js' %}"></script>
     {% block extra_js %}{% endblock %}
   </body>

@@ -129,12 +129,20 @@ def my_profile(request):
         messages.success(request, 'Deployment removed.')
         return redirect('clergy:my_profile')
 
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
     if request.method == 'POST' and request.POST.get('action') == 'upload_attachment':
         form = DocumentUploadForm(request.POST, request.FILES)
         if form.is_valid() and form.cleaned_data['document_type'].is_noted_only:
-            messages.error(request, 'That requirement does not accept document uploads — it is noted directly by the Registrar.')
+            err = 'That requirement does not accept document uploads — it is noted directly by the Registrar.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         elif form.is_valid() and form.cleaned_data['document_type'].uploaded_by == 'registrar':
-            messages.error(request, 'That document is provided by the Registrar — you cannot upload it yourself.')
+            err = 'That document is provided by the Registrar — you cannot upload it yourself.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         elif form.is_valid():
             document = save_document(
                 profile.record,
@@ -143,24 +151,53 @@ def my_profile(request):
                 form.cleaned_data.get('notes', ''),
             )
             document_uploaded(document)
-            messages.success(request, f"{form.cleaned_data['document_type'].name} uploaded successfully.")
+            msg = f"{form.cleaned_data['document_type'].name} uploaded successfully."
+            if is_ajax:
+                return JsonResponse({
+                    'ok': True,
+                    'document_id': document.id,
+                    'document_type_id': document.document_type_id,
+                    'document_name': document.document_type.name,
+                    'view_url': reverse('registrar:view_document', args=[document.id]),
+                    'download_url': reverse('registrar:download_document', args=[document.id]),
+                    'submitted_date': str(document.submitted_date),
+                    'notes': document.notes or '',
+                    'message': msg,
+                })
+            messages.success(request, msg)
         else:
-            messages.error(request, first_error(form) or 'Please choose a valid document file (PDF, PNG, JPG).')
+            err = first_error(form) or 'Please choose a valid document file (PDF, PNG, JPG).'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         return redirect('clergy:my_profile')
 
     if request.method == 'POST' and 'remove_profile_picture' in request.POST:
         if profile.record.profile_picture:
             delete_profile_picture(profile.record)
+            if is_ajax:
+                return JsonResponse({'ok': True, 'removed': True, 'initials': profile.initials, 'message': 'Profile picture removed.'})
             messages.success(request, 'Profile picture removed.')
+        elif is_ajax:
+            return JsonResponse({'ok': True, 'removed': True, 'initials': profile.initials, 'message': 'Profile picture removed.'})
         return redirect('clergy:my_profile')
 
     if request.method == 'POST' and 'upload_profile_picture' in request.POST:
         pic_form = ProfilePictureForm(request.POST, request.FILES)
         if pic_form.is_valid():
             save_profile_picture(profile.record, pic_form.cleaned_data['profile_picture'])
+            if is_ajax:
+                return JsonResponse({
+                    'ok': True,
+                    'picture_url': f"{reverse('registrar:view_profile_picture', args=[profile.record.id])}?t={int(timezone.now().timestamp())}",
+                    'message': 'Profile picture updated successfully.',
+                })
             messages.success(request, 'Profile picture updated successfully.')
         else:
-            messages.error(request, first_error(pic_form) or 'Please choose a JPG or PNG image.')
+            err = first_error(pic_form) or 'Please choose a JPG or PNG image.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         return redirect('clergy:my_profile')
 
     if request.method == 'POST':
@@ -355,12 +392,20 @@ def my_requirements(request):
         messages.error(request, 'Your account is not yet linked to an official clergy record — ask the Registrar to link one before uploading documents.')
         return redirect('clergy:dashboard')
 
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
     if request.method == 'POST':
         form = DocumentUploadForm(request.POST, request.FILES)
         if form.is_valid() and form.cleaned_data['document_type'].is_noted_only:
-            messages.error(request, 'That requirement does not accept document uploads — it is noted directly by the Registrar.')
+            err = 'That requirement does not accept document uploads — it is noted directly by the Registrar.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         elif form.is_valid() and form.cleaned_data['document_type'].uploaded_by == 'registrar':
-            messages.error(request, 'That document is provided by the Registrar — you cannot upload it yourself.')
+            err = 'That document is provided by the Registrar — you cannot upload it yourself.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         elif form.is_valid():
             document = save_document(
                 profile.record,
@@ -369,10 +414,29 @@ def my_requirements(request):
                 form.cleaned_data['notes'],
             )
             document_uploaded(document)
-            messages.success(request, f"{form.cleaned_data['document_type'].name} uploaded successfully.")
+            msg = f"{form.cleaned_data['document_type'].name} uploaded successfully."
+            if is_ajax:
+                summary = profile.record.document_summary()
+                return JsonResponse({
+                    'ok': True,
+                    'document_id': document.id,
+                    'document_type_id': document.document_type_id,
+                    'document_name': document.document_type.name,
+                    'view_url': reverse('registrar:view_document', args=[document.id]),
+                    'download_url': reverse('registrar:download_document', args=[document.id]),
+                    'submitted_date': document.submitted_date.strftime('%b %d, %Y') if hasattr(document.submitted_date, 'strftime') else str(document.submitted_date),
+                    'notes': document.notes or '',
+                    'summary_submitted': summary['submitted'],
+                    'summary_total': summary['total'],
+                    'message': msg,
+                })
+            messages.success(request, msg)
             return redirect('clergy:my_requirements')
         else:
-            messages.error(request, first_error(form) or 'Please choose a document type and a file.')
+            err = first_error(form) or 'Please choose a document type and a file.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
 
     ember_upload_url = reverse('clergy:upload_ember_letter')
     return render(request, 'clergy/my-requirements.html', {

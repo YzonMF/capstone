@@ -64,6 +64,10 @@ def _stored_size(field_file):
         return None
 
 
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+
+
+@xframe_options_sameorigin
 @login_required(login_url='index')
 def view_document(request, document_id):
     document = get_object_or_404(Document, id=document_id)
@@ -546,6 +550,12 @@ def bulk_accounts(request):
     if request.method != 'POST':
         return render(request, 'registrar/bulk-accounts.html', context)
 
+    if request.POST.get('step') == 'edit':
+        return render(request, 'registrar/bulk-accounts.html', {
+            **context,
+            'names_text': request.POST.get('names_text', ''),
+        })
+
     if request.POST.get('step') == 'confirm':
         token = request.session.pop(BULK_TOKEN_SESSION_KEY, None)
         if not token or token != request.POST.get('token'):
@@ -586,6 +596,7 @@ def bulk_accounts(request):
     return render(request, 'registrar/bulk-accounts.html', {
         **context,
         'preview_rows': rows,
+        'raw_names_text': '\n'.join(names),
         'token': token,
         'creatable': len(bulk.valid_names(rows)),
         'setup_window_days': SETUP_WINDOW_DAYS,
@@ -600,6 +611,7 @@ def record_detail(request, record_id):
     default) picks which tab is active on load, so the Documents overview
     page can link straight into a specific record's Documents tab."""
     record = get_object_or_404(ClergyRecord, id=record_id)
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
     if request.method == 'POST' and request.POST.get('action') == 'toggle_noted_requirement':
         dt_id = request.POST.get('document_type_id')
@@ -631,9 +643,28 @@ def record_detail(request, record_id):
                 doc_form.cleaned_data['notes'],
             )
             notifications.document_uploaded(document, registrar=request.user)
-            messages.success(request, f"{doc_form.cleaned_data['document_type'].name} uploaded for {record.name}.")
+            msg = f"{doc_form.cleaned_data['document_type'].name} uploaded for {record.name}."
+            if is_ajax:
+                summary = record.document_summary()
+                return JsonResponse({
+                    'ok': True,
+                    'document_id': document.id,
+                    'document_type_id': document.document_type_id,
+                    'document_name': document.document_type.name,
+                    'view_url': reverse('registrar:view_document', args=[document.id]),
+                    'download_url': reverse('registrar:download_document', args=[document.id]),
+                    'submitted_date': document.submitted_date.strftime('%b %d, %Y') if hasattr(document.submitted_date, 'strftime') else str(document.submitted_date),
+                    'notes': document.notes or '',
+                    'summary_submitted': summary['submitted'],
+                    'summary_total': summary['total'],
+                    'message': msg,
+                })
+            messages.success(request, msg)
         else:
-            messages.error(request, first_error(doc_form) or 'Please choose a document type and a file.')
+            err = first_error(doc_form) or 'Please choose a document type and a file.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         tab = 'personal' if request.POST.get('action') == 'upload_attachment' else 'documents'
         return redirect(f"{request.path}?tab={tab}")
 

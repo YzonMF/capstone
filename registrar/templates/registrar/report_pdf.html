@@ -14,6 +14,7 @@
   <body>
     <div class="page">
       <div class="toolbar">
+        {% if download_url %}<a class="download-btn" href="{% url 'registrar:generate_report' %}" data-back-page data-back-url="{% url 'registrar:generate_report' %}">&larr; Back</a>{% endif %}
         <button type="button" class="print-btn" data-print-page>Print</button>
         {% if download_url %}<a class="download-btn" href="{{ download_url }}">Download Saved PDF</a>{% endif %}
       </div>

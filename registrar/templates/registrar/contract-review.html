@@ -21,20 +21,26 @@
             <th>Contract End</th>
             <th>Days Left</th>
             <th>Current Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {% for row in rows %}
             <tr>
-              <td>{{ row.record.name }}</td>
+              <td><b>{{ row.record.name }}</b></td>
               <td>{{ row.record.assignment|default:"—" }}</td>
               <td>{{ row.record.contract_end }}</td>
               <td><b>{{ row.days_left }}</b></td>
               <td><span class="badge {{ row.record.status|status_badge_class }}">{{ row.record.status }}</span></td>
+              <td>
+                <a class="btn small secondary" href="{% url 'registrar:record_detail' row.record.id %}#sec-reg-status">
+                  <i class="fa-solid fa-pen-to-square"></i> Update Contract
+                </a>
+              </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="5" class="empty">No contracts on file.</td>
+              <td colspan="6" class="empty">No contracts on file.</td>
             </tr>
           {% endfor %}
         </tbody>

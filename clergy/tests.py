@@ -570,3 +570,48 @@ class EnhancedClergyProfileTests(TestCase):
         self.assertIn('ordination_date', bishop_map)
         self.assertIn('consecration_date', bishop_map)
 
+    def test_ajax_upload_attachment_returns_json_without_page_reload(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from registrar.models import DocumentType
+
+        birth_type, _ = DocumentType.objects.get_or_create(
+            name='Birth Certificate',
+            defaults={'uploaded_by': 'clergy', 'required_from_rank': 'postulancy'},
+        )
+        pdf_file = SimpleUploadedFile('birth_ajax.pdf', b'%PDF-1.4\ncontent', content_type='application/pdf')
+        res = self.client.post(
+            reverse('clergy:my_profile'),
+            {
+                'action': 'upload_attachment',
+                'document_type': birth_type.id,
+                'file': pdf_file,
+                'notes': 'AJAX upload',
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(res.status_code, 200)
+        payload = res.json()
+        self.assertTrue(payload['ok'])
+        self.assertEqual(payload['document_type_id'], birth_type.id)
+        self.assertEqual(payload['document_name'], 'Birth Certificate')
+        self.assertIn('/documents/', payload['view_url'])
+
+    def test_ui_section_nav_and_terms_checkbox_persistence(self):
+        # 1. Clergy profile has sticky section navigation
+        clergy_page = self.client.get(reverse('clergy:my_profile'))
+        self.assertContains(clergy_page, 'id="personalSectionNav"')
+        self.assertContains(clergy_page, 'href="#sec-identity"')
+        self.assertContains(clergy_page, 'href="#sec-sacraments"')
+
+        # 2. Failed login with accept_terms=1 preserves checked state
+        anon = self.client_class()
+        login_res = anon.post(reverse('index'), {
+            'username': 'clergy1',
+            'password': 'wrongpassword',
+            'accept_terms': '1',
+        })
+        self.assertEqual(login_res.status_code, 200)
+        self.assertTrue(login_res.context['accept_terms'])
+        self.assertContains(login_res, 'id="accept-terms" value="1" required checked')
+
+

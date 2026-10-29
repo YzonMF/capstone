@@ -607,3 +607,32 @@ body{
 .btn-terms-agree:active {
   transform: translateY(0);
 }
+
+/* ============ PASSWORD VISIBILITY TOGGLE ============ */
+.pwd-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pwd-input-wrap input {
+  padding-right: 42px;
+}
+.pwd-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 0;
+  color: #9db2c6;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.pwd-toggle:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}

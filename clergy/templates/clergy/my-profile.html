@@ -81,6 +81,66 @@
 .date-att-bar.missing .att-btn.upload:hover {
   background: #dbeafe;
 }
+.section-nav-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0 0 16px 0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+.section-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.section-nav-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 5px 11px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.nav-pill:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.nav-pill.active {
+  background: #2f6fed;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(47, 111, 237, 0.28);
+}
+@keyframes fieldFlashHighlight {
+  0% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.45); background-color: #f0fdf4; }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+.field-highlight-flash {
+  animation: fieldFlashHighlight 1.8s ease-out;
+  border-radius: 8px;
+}
 </style>
 {% endblock %}
 
@@ -115,7 +175,23 @@
       You can access only your own clergy record. Your Clergy ID, official ecclesiastical status, deployment assignment, and contract terms are maintained by the Registrar.
     </div>
 
-    <div class="section-card">
+    <nav class="section-nav-sticky" id="personalSectionNav" aria-label="Quick section navigation">
+      <div class="section-nav-inner">
+        <span class="section-nav-label"><i class="fa-solid fa-compass"></i> Jump to:</span>
+        <a href="#sec-record" class="nav-pill active"><i class="fa-solid fa-id-badge"></i> Clergy Record</a>
+        <a href="#sec-identity" class="nav-pill"><i class="fa-solid fa-id-card"></i> Identity</a>
+        <a href="#sec-contact" class="nav-pill"><i class="fa-solid fa-address-book"></i> Contact</a>
+        <a href="#sec-sacraments" class="nav-pill"><i class="fa-solid fa-water"></i> Sacraments</a>
+        <a href="#sec-orders" class="nav-pill"><i class="fa-solid fa-church"></i> Holy Orders</a>
+        <a href="#marriageFamilyCard" class="nav-pill"><i class="fa-solid fa-people-roof"></i> Family</a>
+        <a href="#sec-education" class="nav-pill"><i class="fa-solid fa-graduation-cap"></i> Education</a>
+        <a href="#sec-gov-ids" class="nav-pill"><i class="fa-solid fa-id-card"></i> Gov IDs</a>
+        <a href="#sec-deployments" class="nav-pill"><i class="fa-solid fa-map-location-dot"></i> Deployments</a>
+        <a href="#sec-medical" class="nav-pill"><i class="fa-solid fa-notes-medical"></i> Medical</a>
+      </div>
+    </nav>
+
+    <div class="section-card" id="sec-record" style="scroll-margin-top: 70px;">
       <h3><i class="fa-solid fa-id-badge"></i> My Clergy Record</h3>
       <div class="info-grid">
         <div class="info"><label>Clergy ID</label><b>{{ profile.record.id|default:"Pending" }}</b></div>
@@ -164,7 +240,7 @@
 
         <div class="form-grid">
 
-          <div class="form-subhead" style="grid-column: 1 / -1; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 10px 0 4px; display: flex; align-items: center; gap: 8px;">
+          <div class="form-subhead" id="sec-identity" style="scroll-margin-top: 70px; grid-column: 1 / -1; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 10px 0 4px; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-id-card" style="color: #2f6fed;"></i> Identity &amp; Basic Information
           </div>
 
@@ -196,13 +272,13 @@
             <label>Date of Birth <span class="req-mark">*</span></label>
             <input name="date_of_birth" type="date" value="{{ profile.record.date_of_birth|date:'Y-m-d' }}" required>
             {% with att=profile.record.date_attachments_map.date_of_birth %}
-            <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+            <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
               <span class="att-status">
                 {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
               </span>
               <div class="att-actions">
                 {% if att.is_uploaded %}
-                  <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                  <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                   {% if att.can_clergy_upload and att.doc_type %}
                   <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                   {% endif %}
@@ -226,7 +302,7 @@
             </div>
           </div>
 
-          <div class="form-subhead" style="grid-column: 1 / -1; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 14px 0 4px; display: flex; align-items: center; gap: 8px;">
+          <div class="form-subhead" id="sec-contact" style="scroll-margin-top: 70px; grid-column: 1 / -1; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 14px 0 4px; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-address-book" style="color: #2f6fed;"></i> Contact &amp; Residential Information
           </div>
 
@@ -249,7 +325,7 @@
             <input name="email" type="email" value="{{ profile.record.email|default:'' }}" required>
           </div>
 
-          <div class="form-subhead" style="grid-column: 1 / -1; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 14px 0 4px; display: flex; align-items: center; gap: 8px;">
+          <div class="form-subhead" id="sec-sacraments" style="scroll-margin-top: 70px; grid-column: 1 / -1; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin: 14px 0 4px; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-water" style="color: #2f6fed;"></i> Sacramental Records
           </div>
 
@@ -257,13 +333,13 @@
             <label>Date of Baptism <span class="req-mark">*</span></label>
             <input name="baptism_date" type="date" value="{{ profile.record.baptism_date|date:'Y-m-d' }}" required>
             {% with att=profile.record.date_attachments_map.baptism_date %}
-            <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+            <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
               <span class="att-status">
                 {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
               </span>
               <div class="att-actions">
                 {% if att.is_uploaded %}
-                  <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                  <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                   {% if att.can_clergy_upload and att.doc_type %}
                   <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                   {% endif %}
@@ -288,13 +364,13 @@
             <label>Date of Confirmation <span class="req-mark">*</span></label>
             <input name="confirmation_date" type="date" value="{{ profile.record.confirmation_date|date:'Y-m-d' }}" required>
             {% with att=profile.record.date_attachments_map.confirmation_date %}
-            <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}">
+            <div class="date-att-bar {% if att.is_uploaded %}uploaded{% else %}missing{% endif %}" {% if att.doc_type %}data-att-doc-type="{{ att.doc_type.id }}"{% endif %} data-doc-title="{{ att.name }}">
               <span class="att-status">
                 {% if att.is_uploaded %}<i class="fa-solid fa-circle-check"></i> {{ att.name }} attached{% else %}<i class="fa-solid fa-circle-exclamation"></i> No {{ att.name }} attached{% endif %}
               </span>
               <div class="att-actions">
                 {% if att.is_uploaded %}
-                  <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view"><i class="fa-solid fa-eye"></i> View</a>
+                  <a href="{% url 'registrar:view_document' att.doc_id %}" target="_blank" class="att-btn view" data-doc-name="{{ att.name }}"><i class="fa-solid fa-eye"></i> View</a>
                   {% if att.can_clergy_upload and att.doc_type %}
                   <button type="button" class="att-btn replace" data-quick-upload="{{ att.doc_type.id }}" data-doc-name="{{ att.name }}"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>
                   {% endif %}
@@ -318,7 +394,7 @@
         </div>
       </div>
 
-      <div class="section-card">
+      <div class="section-card" id="sec-orders" style="scroll-margin-top: 70px;">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
           <h3 style="margin: 0;"><i class="fa-solid fa-church"></i> Holy Orders &amp; Ordination History</h3>
           <span class="badge" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 11px; padding: 3px 8px; border-radius: 9999px; font-weight: 600;">
@@ -542,7 +618,7 @@
         </div>
       </div>
 
-      <div class="section-card">
+      <div class="section-card" id="sec-education" style="scroll-margin-top: 70px;">
         <h3><i class="fa-solid fa-graduation-cap"></i> Educational Background</h3>
         <div class="notice">Record your academic qualifications and theological degrees for your official clerical directory entry.</div>
 
@@ -588,7 +664,7 @@
         </div>
       </div>
 
-      <div class="section-card">
+      <div class="section-card" id="sec-gov-ids" style="scroll-margin-top: 70px;">
         <h3><i class="fa-solid fa-id-card"></i> Government IDs</h3>
         <div class="form-grid">
           <div class="field">
@@ -613,7 +689,7 @@
 
     </form>
 
-    <div class="section-card" style="margin-top:20px;">
+    <div class="section-card" id="sec-deployments" style="margin-top:20px; scroll-margin-top: 70px;">
       <div class="section-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <h3 style="margin:0;"><i class="fa-solid fa-map-location-dot"></i> Deployments &amp; Station History</h3>
@@ -657,7 +733,7 @@
       </table>
     </div>
 
-    <div class="section-card">
+    <div class="section-card" id="sec-medical" style="scroll-margin-top: 70px;">
       <div class="section-head">
         <h3><i class="fa-solid fa-notes-medical"></i> Medical / Psychiatric Status</h3>
         <a class="btn secondary small" href="{% url 'clergy:my_requirements' %}"><i class="fa-solid fa-arrow-right"></i> Manage in My Requirements</a>
@@ -766,7 +842,7 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="quickUploadForm">
       {% csrf_token %}
       <input type="hidden" name="action" value="upload_attachment">
       <input type="hidden" name="document_type" id="quickUploadDocTypeId" value="">
@@ -790,113 +866,389 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'clergy/js/address-picker.js' %}"></script>
-<script src="{% static 'clergy/js/required-field-indicator.js' %}"></script>
-<script src="{% static 'code-field.js' %}"></script>
+<script src="{% static 'clergy/js/address-picker.js' %}?v=6"></script>
+<script src="{% static 'clergy/js/required-field-indicator.js' %}?v=6"></script>
+<script src="{% static 'code-field.js' %}?v=6"></script>
 
 <script>
-document.getElementById('addChildBtn')?.addEventListener('click', function() {
-  const tbody = document.querySelector('#childrenTable tbody');
-  const emptyRow = tbody.querySelector('.empty-row');
-  if (emptyRow) emptyRow.remove();
-  const tr = document.createElement('tr');
-  tr.style.borderBottom = '1px solid #edf0f3';
-  tr.innerHTML = `
-    <td style="padding:6px;"><input name="child_name" placeholder="Child full name" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;" required></td>
-    <td style="padding:6px;"><input name="child_dob" type="date" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;"></td>
-    <td style="padding:6px;">
-      <select name="child_gender" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;">
-        <option value="">Select</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-      </select>
-    </td>
-    <td style="padding:6px;text-align:center;"><button type="button" class="btn small danger remove-row-btn" title="Remove"><i class="fa-solid fa-trash"></i></button></td>
-  `;
-  tbody.appendChild(tr);
-});
+(function() {
+  const DRAFT_KEY = 'ednp_form_draft_' + window.location.pathname;
+  const RETURN_FIELD_KEY = 'ednp_return_input_' + window.location.pathname;
+  const mainForm = document.getElementById('profileForm');
+  let activeTriggerFieldEl = null;
+  let activeTriggerInputName = '';
 
-document.getElementById('addEduBtn')?.addEventListener('click', function() {
-  const tbody = document.querySelector('#educationTable tbody');
-  const emptyRow = tbody.querySelector('.empty-row');
-  if (emptyRow) emptyRow.remove();
-  const tr = document.createElement('tr');
-  tr.style.borderBottom = '1px solid #edf0f3';
-  tr.innerHTML = `
-    <td style="padding:6px;"><input name="edu_degree" placeholder="e.g. Master of Divinity" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;" required></td>
-    <td style="padding:6px;"><input name="edu_institution" placeholder="e.g. St. Andrew's Seminary" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;" required></td>
-    <td style="padding:6px;"><input name="edu_place" placeholder="e.g. Quezon City" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;"></td>
-    <td style="padding:6px;"><input name="edu_year" type="number" min="1940" max="2099" placeholder="YYYY" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;"></td>
-    <td style="padding:6px;text-align:center;"><button type="button" class="btn small danger remove-row-btn" title="Remove"><i class="fa-solid fa-trash"></i></button></td>
-  `;
-  tbody.appendChild(tr);
-});
+  function appendChildRow(nameVal, dobVal, genderVal) {
+    const tbody = document.querySelector('#childrenTable tbody');
+    if (!tbody) return;
+    const emptyRow = tbody.querySelector('.empty-row');
+    if (emptyRow) emptyRow.remove();
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #edf0f3';
+    tr.innerHTML = `
+      <td style="padding:6px;"><input name="child_name" placeholder="Child full name" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;" required></td>
+      <td style="padding:6px;"><input name="child_dob" type="date" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;"></td>
+      <td style="padding:6px;">
+        <select name="child_gender" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;">
+          <option value="">Select</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </td>
+      <td style="padding:6px;text-align:center;"><button type="button" class="btn small danger remove-row-btn" title="Remove"><i class="fa-solid fa-trash"></i></button></td>
+    `;
+    if (nameVal !== undefined) tr.querySelector('[name="child_name"]').value = nameVal;
+    if (dobVal !== undefined) tr.querySelector('[name="child_dob"]').value = dobVal;
+    if (genderVal !== undefined) tr.querySelector('[name="child_gender"]').value = genderVal;
+    tbody.appendChild(tr);
+  }
 
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('.remove-row-btn');
-  if (btn) {
-    const tr = btn.closest('tr');
-    const tbody = tr.parentElement;
-    tr.remove();
-    if (tbody.children.length === 0) {
-      const colSpan = tbody.closest('table').querySelectorAll('thead th').length;
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="${colSpan}" style="padding:10px;text-align:center;color:#64748b;font-size:12px;">No items listed. Click "+ Add" above to add.</td></tr>`;
+  function appendEduRow(degreeVal, instVal, placeVal, yearVal) {
+    const tbody = document.querySelector('#educationTable tbody');
+    if (!tbody) return;
+    const emptyRow = tbody.querySelector('.empty-row');
+    if (emptyRow) emptyRow.remove();
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #edf0f3';
+    tr.innerHTML = `
+      <td style="padding:6px;"><input name="edu_degree" placeholder="e.g. Master of Divinity" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;" required></td>
+      <td style="padding:6px;"><input name="edu_institution" placeholder="e.g. St. Andrew's Seminary" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;" required></td>
+      <td style="padding:6px;"><input name="edu_place" placeholder="e.g. Quezon City" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;"></td>
+      <td style="padding:6px;"><input name="edu_year" type="number" min="1940" max="2099" placeholder="YYYY" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box;"></td>
+      <td style="padding:6px;text-align:center;"><button type="button" class="btn small danger remove-row-btn" title="Remove"><i class="fa-solid fa-trash"></i></button></td>
+    `;
+    if (degreeVal !== undefined) tr.querySelector('[name="edu_degree"]').value = degreeVal;
+    if (instVal !== undefined) tr.querySelector('[name="edu_institution"]').value = instVal;
+    if (placeVal !== undefined) tr.querySelector('[name="edu_place"]').value = placeVal;
+    if (yearVal !== undefined) tr.querySelector('[name="edu_year"]').value = yearVal;
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById('addChildBtn')?.addEventListener('click', function() {
+    appendChildRow('', '', '');
+    saveDraftToSession();
+  });
+
+  document.getElementById('addEduBtn')?.addEventListener('click', function() {
+    appendEduRow('', '', '', '');
+    saveDraftToSession();
+  });
+
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.remove-row-btn');
+    if (btn) {
+      const tr = btn.closest('tr');
+      const tbody = tr.parentElement;
+      tr.remove();
+      if (tbody.children.length === 0) {
+        const colSpan = tbody.closest('table').querySelectorAll('thead th').length;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="${colSpan}" style="padding:10px;text-align:center;color:#64748b;font-size:12px;">No items listed. Click "+ Add" above to add.</td></tr>`;
+      }
+      saveDraftToSession();
+    }
+  });
+
+  // Modal helpers for clergy portal
+  window.openModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('show');
+  };
+  window.closeModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  };
+  document.addEventListener('click', function(e) {
+    const closer = e.target.closest('[data-close-modal]');
+    if (closer) closeModal(closer.dataset.closeModal);
+  });
+
+  // Dynamic toggle of Marriage & Family section based on Civil Status
+  function updateFamilyFieldsVisibility() {
+    const select = document.getElementById('civilStatusSelect');
+    const fields = document.getElementById('marriageFamilyFields');
+    const notice = document.getElementById('singleCivilStatusNotice');
+    if (!select || !fields) return;
+
+    const isSingle = select.value === 'Single';
+    if (isSingle) {
+      fields.style.display = 'none';
+      if (notice) notice.style.display = 'block';
+      fields.querySelectorAll('input, select, textarea, button').forEach(function(el) {
+        el.disabled = true;
+      });
+    } else {
+      fields.style.display = '';
+      if (notice) notice.style.display = 'none';
+      fields.querySelectorAll('input, select, textarea, button').forEach(function(el) {
+        el.disabled = false;
+      });
     }
   }
-});
 
-// Modal helpers for clergy portal
-window.openModal = function(id) {
-  const el = document.getElementById(id);
-  if (el) el.classList.add('show');
-};
-window.closeModal = function(id) {
-  const el = document.getElementById(id);
-  if (el) el.classList.remove('show');
-};
-document.addEventListener('click', function(e) {
-  const closer = e.target.closest('[data-close-modal]');
-  if (closer) closeModal(closer.dataset.closeModal);
-});
+  document.getElementById('civilStatusSelect')?.addEventListener('change', updateFamilyFieldsVisibility);
+  updateFamilyFieldsVisibility();
 
-// Dynamic toggle of Marriage & Family section based on Civil Status
-function updateFamilyFieldsVisibility() {
-  const select = document.getElementById('civilStatusSelect');
-  const fields = document.getElementById('marriageFamilyFields');
-  const notice = document.getElementById('singleCivilStatusNotice');
-  if (!select || !fields) return;
+  const ARRAY_NAMES = new Set(['child_name', 'child_dob', 'child_gender', 'edu_degree', 'edu_institution', 'edu_place', 'edu_year']);
 
-  const isSingle = select.value === 'Single';
-  if (isSingle) {
-    fields.style.display = 'none';
-    if (notice) notice.style.display = 'block';
-    fields.querySelectorAll('input, select, textarea, button').forEach(function(el) {
-      el.disabled = true;
+  function saveDraftToSession() {
+    if (!mainForm) return;
+    const fields = {};
+    mainForm.querySelectorAll('input[name], select[name], textarea[name]').forEach(function(el) {
+      if (el.name === 'csrfmiddlewaretoken' || el.type === 'file' || el.readOnly || ARRAY_NAMES.has(el.name)) return;
+      fields[el.name] = el.value;
     });
-  } else {
-    fields.style.display = '';
-    if (notice) notice.style.display = 'none';
-    fields.querySelectorAll('input, select, textarea, button').forEach(function(el) {
-      el.disabled = false;
+
+    const children = [];
+    document.querySelectorAll('#childrenTable tbody tr:not(.empty-row)').forEach(function(tr) {
+      children.push({
+        name: tr.querySelector('[name="child_name"]')?.value || '',
+        dob: tr.querySelector('[name="child_dob"]')?.value || '',
+        gender: tr.querySelector('[name="child_gender"]')?.value || ''
+      });
+    });
+
+    const educations = [];
+    document.querySelectorAll('#educationTable tbody tr:not(.empty-row)').forEach(function(tr) {
+      educations.push({
+        degree: tr.querySelector('[name="edu_degree"]')?.value || '',
+        institution: tr.querySelector('[name="edu_institution"]')?.value || '',
+        place: tr.querySelector('[name="edu_place"]')?.value || '',
+        year: tr.querySelector('[name="edu_year"]')?.value || ''
+      });
+    });
+
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ fields: fields, children: children, educations: educations }));
+    } catch (_e) {}
+  }
+
+  function restoreDraftFromSession() {
+    if (!mainForm) return false;
+    let raw = null;
+    try { raw = sessionStorage.getItem(DRAFT_KEY); } catch (_e) {}
+    if (!raw) return false;
+
+    try {
+      const draft = JSON.parse(raw);
+      if (!draft || typeof draft !== 'object') return false;
+
+      if (draft.fields) {
+        Object.keys(draft.fields).forEach(function(name) {
+          const el = mainForm.querySelector('[name="' + CSS.escape(name) + '"]');
+          if (el && !el.readOnly && el.type !== 'file') {
+            el.value = draft.fields[name];
+          }
+        });
+      }
+
+      if (Array.isArray(draft.children)) {
+        const tbody = document.querySelector('#childrenTable tbody');
+        if (tbody) {
+          tbody.innerHTML = '';
+          if (draft.children.length === 0) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="4" style="padding:10px;text-align:center;color:#64748b;font-size:12px;">No children listed. Click "+ Add Child" above to add.</td></tr>';
+          } else {
+            draft.children.forEach(function(c) { appendChildRow(c.name, c.dob, c.gender); });
+          }
+        }
+      }
+
+      if (Array.isArray(draft.educations)) {
+        const tbody = document.querySelector('#educationTable tbody');
+        if (tbody) {
+          tbody.innerHTML = '';
+          if (draft.educations.length === 0) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="padding:10px;text-align:center;color:#64748b;font-size:12px;">No structured degrees listed. Click "+ Add Degree / Education" above to add.</td></tr>';
+          } else {
+            draft.educations.forEach(function(ed) { appendEduRow(ed.degree, ed.institution, ed.place, ed.year); });
+          }
+        }
+      }
+
+      updateFamilyFieldsVisibility();
+      const saveBar = document.querySelector('.floating-save-bar');
+      if (saveBar) saveBar.classList.add('visible');
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function focusAndHighlightField(fieldEl, inputEl) {
+    if (!fieldEl && !inputEl) return;
+    const container = fieldEl || (inputEl && inputEl.closest('.field, .edit-field, .doc-card'));
+    const target = inputEl || (container && container.querySelector('input:not([type="hidden"]):not([type="file"]):not([readonly]), select, textarea'));
+    if (container) {
+      container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      container.classList.remove('field-highlight-flash');
+      void container.offsetWidth;
+      container.classList.add('field-highlight-flash');
+    } else if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    if (target) {
+      setTimeout(function() {
+        try { target.focus({ preventScroll: true }); } catch (_e) { target.focus(); }
+      }, 220);
+    }
+  }
+
+  if (mainForm) {
+    mainForm.addEventListener('input', function(e) {
+      if (e.target.name === 'profile_picture') return;
+      saveDraftToSession();
+    });
+    mainForm.addEventListener('change', function(e) {
+      if (e.target.name === 'profile_picture') return;
+      saveDraftToSession();
+    });
+    mainForm.addEventListener('submit', function(e) {
+      const sub = e.submitter;
+      if (sub && (sub.name === 'upload_profile_picture' || sub.name === 'remove_profile_picture')) {
+        saveDraftToSession();
+        return;
+      }
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem(RETURN_FIELD_KEY);
+      } catch (_e) {}
     });
   }
-}
 
-document.getElementById('civilStatusSelect')?.addEventListener('change', updateFamilyFieldsVisibility);
-updateFamilyFieldsVisibility();
+  document.querySelectorAll('a.btn.secondary[href*="my-profile"]').forEach(function(cancelLink) {
+    cancelLink.addEventListener('click', function() {
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem(RETURN_FIELD_KEY);
+      } catch (_e) {}
+    });
+  });
 
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('[data-quick-upload]');
-  if (btn) {
+  document.getElementById('floatingDiscardBtn')?.addEventListener('click', function() {
+    try {
+      sessionStorage.removeItem(DRAFT_KEY);
+      sessionStorage.removeItem(RETURN_FIELD_KEY);
+    } catch (_e) {}
+  }, true);
+
+  restoreDraftFromSession();
+
+  try {
+    const savedInputName = sessionStorage.getItem(RETURN_FIELD_KEY);
+    if (savedInputName) {
+      sessionStorage.removeItem(RETURN_FIELD_KEY);
+      const inputEl = mainForm ? mainForm.querySelector('[name="' + CSS.escape(savedInputName) + '"]') : null;
+      if (inputEl) {
+        setTimeout(function() {
+          focusAndHighlightField(inputEl.closest('.field, .edit-field'), inputEl);
+        }, 120);
+      }
+    }
+  } catch (_e) {}
+
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-quick-upload]');
+    if (!btn) return;
     const docTypeId = btn.dataset.quickUpload;
     const docName = btn.dataset.docName;
     const input = document.getElementById('quickUploadDocTypeId');
     const title = document.getElementById('quickUploadDocTitle');
     if (input) input.value = docTypeId;
     if (title) title.textContent = 'Upload ' + docName;
+
+    activeTriggerFieldEl = btn.closest('.field, .edit-field');
+    const fieldInput = activeTriggerFieldEl ? activeTriggerFieldEl.querySelector('input[name], select[name], textarea[name]') : null;
+    activeTriggerInputName = fieldInput ? fieldInput.name : '';
+
+    saveDraftToSession();
+    try {
+      if (activeTriggerInputName) {
+        sessionStorage.setItem(RETURN_FIELD_KEY, activeTriggerInputName);
+      }
+    } catch (_e) {}
+
     openModal('quickUploadModal');
+  });
+
+  function applyUploadedAttachmentToDOM(data) {
+    const docTypeId = String(data.document_type_id);
+    document.querySelectorAll('.date-att-bar[data-att-doc-type="' + docTypeId + '"]').forEach(function(bar) {
+      bar.className = 'date-att-bar uploaded';
+      const statusEl = bar.querySelector('.att-status');
+      if (statusEl) {
+        statusEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + data.document_name + ' attached <span class="preview-confirmed-tag"><i class="fa-solid fa-check"></i> Just uploaded</span>';
+      }
+      const actionsEl = bar.querySelector('.att-actions');
+      if (actionsEl) {
+        actionsEl.innerHTML =
+          '<a href="' + data.view_url + '" target="_blank" class="att-btn view" data-doc-name="' + data.document_name + '"><i class="fa-solid fa-eye"></i> View</a> ' +
+          '<button type="button" class="att-btn replace" data-quick-upload="' + docTypeId + '" data-doc-name="' + data.document_name + '"><i class="fa-solid fa-arrow-up-from-bracket"></i> Replace</button>';
+      }
+    });
+
+    if (data.summary_submitted !== undefined && data.summary_total !== undefined) {
+      document.querySelectorAll('.sidebar .nav a[href*="requirements"] .badge').forEach(function(b) {
+        b.textContent = data.summary_submitted + '/' + data.summary_total;
+        b.classList.toggle('complete', data.summary_submitted === data.summary_total);
+      });
+    }
   }
-});
+
+  const quickUploadForm = document.getElementById('quickUploadForm');
+  if (quickUploadForm) {
+    quickUploadForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      const btn = quickUploadForm.querySelector('button[type="submit"]');
+      const origHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading…';
+      }
+
+      try {
+        const formData = new FormData(quickUploadForm);
+        const res = await fetch(quickUploadForm.getAttribute('action') || window.location.href, {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          if (typeof showToast === 'function') {
+            showToast((data && data.error) || 'Could not upload file. Please check the file and try again.', 'error');
+          }
+          return;
+        }
+
+        try { sessionStorage.removeItem(RETURN_FIELD_KEY); } catch (_e) {}
+        applyUploadedAttachmentToDOM(data);
+        if (typeof showToast === 'function') {
+          showToast(data.message || 'Document uploaded successfully.', 'success');
+        }
+        quickUploadForm.reset();
+        if (typeof closeModal === 'function') closeModal('quickUploadModal');
+
+        const targetInput = (activeTriggerInputName && mainForm)
+          ? mainForm.querySelector('[name="' + CSS.escape(activeTriggerInputName) + '"]')
+          : null;
+        const fallbackField = activeTriggerFieldEl ||
+          document.querySelector('.date-att-bar[data-att-doc-type="' + data.document_type_id + '"]')?.closest('.field, .edit-field');
+        focusAndHighlightField(fallbackField, targetInput);
+      } catch (_err) {
+        if (typeof showToast === 'function') {
+          showToast('Network error while uploading. Please try again.', 'error');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      }
+    });
+  }
+})();
 </script>
 
 {% endblock %}

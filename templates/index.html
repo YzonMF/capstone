@@ -339,16 +339,21 @@
               </div>
               <div class="field">
                 <label><i class="fa-solid fa-lock"></i> Password</label>
-                <input name="password"
-                       type="password"
-                       placeholder="Enter your password"
-                       autocomplete="current-password"
-                       required
-                       {% if username %}autofocus{% endif %}>
+                <div class="pwd-input-wrap">
+                  <input name="password"
+                         type="password"
+                         placeholder="Enter your password"
+                         autocomplete="current-password"
+                         required
+                         {% if username %}autofocus{% endif %}>
+                  <button type="button" class="pwd-toggle" data-toggle-password aria-label="Show password" title="Show password">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
               </div>
               <div class="terms-row" id="terms-row-box">
                 <label class="terms-label" for="accept-terms">
-                  <input type="checkbox" name="accept_terms" id="accept-terms" value="1" required>
+                  <input type="checkbox" name="accept_terms" id="accept-terms" value="1" required {% if accept_terms %}checked{% endif %}>
                   <span>I agree to the <button type="button" class="terms-link-btn" id="open-terms-btn">Terms &amp; Conditions</button></span>
                 </label>
               </div>

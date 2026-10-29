@@ -51,11 +51,20 @@
           <p class="muted form-note">Names with a yellow note start unticked — tick them only if it really is a different person.</p>
           <div class="modal-actions">
             <a class="btn secondary"
-               href="{% url 'registrar:bulk_accounts' %}"><i class="fa-solid fa-arrow-left"></i> Start over</a>
+               href="{% url 'registrar:bulk_accounts' %}"><i class="fa-solid fa-rotate-left"></i> Start over</a>
+            <button class="btn secondary"
+                    type="submit"
+                    form="bulkEditInputForm"
+                    formnovalidate><i class="fa-solid fa-pen"></i> Edit names</button>
             <button class="btn"
                     type="submit"
                     id="bulkConfirmBtn"><i class="fa-solid fa-print"></i> Create accounts &amp; open slips</button>
           </div>
+        </form>
+        <form method="post" id="bulkEditInputForm" hidden>
+          {% csrf_token %}
+          <input type="hidden" name="step" value="edit">
+          <textarea name="names_text">{{ raw_names_text|default:"" }}</textarea>
         </form>
       {% else %}
         <div class="panel-head"><div><h3><i class="fa-solid fa-users-gear"></i> Bulk Create Accounts</h3><span class="muted">Add several clergy at once. Everything except the name is filled in later.</span></div><a class="btn secondary" href="{% url 'registrar:clergy_records' %}"><i class="fa-solid fa-arrow-left"></i> Clergy Records</a></div>

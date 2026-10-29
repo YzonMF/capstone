@@ -8,6 +8,7 @@
 </head>
 <body>
   <div class="actions">
+    {% if download_url %}<a class="download-btn" href="{% url 'clergy:my_profile' %}" data-back-page data-back-url="{% url 'clergy:my_profile' %}">&larr; Back to Record</a>{% endif %}
     <button type="button" class="print-btn" data-print-page>Print Record</button>
     {% if download_url %}<a class="download-btn" href="{{ download_url }}">Download PDF</a>{% endif %}
   </div>

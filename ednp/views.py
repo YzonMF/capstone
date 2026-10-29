@@ -66,6 +66,7 @@ def _start_device_check(request, user, username):
         if not otp.has_live_challenge(user, 'device', security.phone):
             return render(request, 'index.html', {
                 'login_error': True, 'login_error_message': str(exc), 'username': username,
+                'accept_terms': bool(request.POST.get('accept_terms')),
             })
         test_code = None
     request.session[PENDING_LOGIN_KEY] = {'user_id': user.pk, 'username': username, 'at': timezone.now().timestamp()}
@@ -157,11 +158,14 @@ def index(request):
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
+        accept_terms = bool(request.POST.get('accept_terms'))
+
         if login_throttle.is_locked_out(username):
             return render(request, 'index.html', {
                 'login_error': True,
                 'login_error_message': login_throttle.LOCKOUT_MESSAGE,
                 'username': username,
+                'accept_terms': accept_terms,
             })
 
         user = authenticate(request, username=username, password=password)
@@ -172,6 +176,7 @@ def index(request):
                 'login_error': True,
                 'login_error_message': 'This temporary password has expired. Please ask the registrar to reset your account.',
                 'username': username,
+                'accept_terms': accept_terms,
             })
         if user is not None:
             login_throttle.clear(username)
@@ -195,6 +200,7 @@ def index(request):
             'login_error': True,
             'login_error_message': 'Invalid username or password.',
             'username': username,
+            'accept_terms': accept_terms,
         })
 
     context = {'username': request.COOKIES.get(LAST_USERNAME_COOKIE, '')}
