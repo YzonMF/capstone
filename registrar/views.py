@@ -722,14 +722,22 @@ def record_detail(request, record_id):
         was_archived = record.is_archived
         form = PersonalInfoForm(request.POST, instance=record)
         if not form.is_valid():
-            messages.error(request, 'Please check the form and try again.')
+            err = first_error(form) or 'Please check the form and try again.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         elif was_archived and form.cleaned_data['status'] != archive.ARCHIVABLE_STATUS:
             # Only retired clergy are archived, so the status can't move while it is.
-            messages.error(request, 'This record is archived. Restore it before changing its status.')
+            err = 'This record is archived. Restore it before changing its status.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         else:
             form.save()
             record.record_expired_contract()
             notifications.record_updated(record, request.user, form)
+            if is_ajax:
+                return JsonResponse({'ok': True, 'message': 'Changes saved successfully.'})
             messages.success(request, 'Personal Information updated successfully.')
         return redirect(f"{request.path}?tab=personal")
 

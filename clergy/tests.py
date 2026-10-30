@@ -597,13 +597,35 @@ class EnhancedClergyProfileTests(TestCase):
         self.assertIn('/documents/', payload['view_url'])
 
     def test_ui_section_nav_and_terms_checkbox_persistence(self):
-        # 1. Clergy profile has sticky section navigation
+        # 1. Clergy profile has sticky section navigation & Quick-Edit Section Modal
         clergy_page = self.client.get(reverse('clergy:my_profile'))
         self.assertContains(clergy_page, 'id="personalSectionNav"')
-        self.assertContains(clergy_page, 'href="#sec-identity"')
-        self.assertContains(clergy_page, 'href="#sec-sacraments"')
+        self.assertContains(clergy_page, 'data-section-modal="sec-identity"')
+        self.assertContains(clergy_page, 'id="sectionQuickEditModal"')
+        self.assertContains(clergy_page, 'id="sectionQuickEditSaveBtn"')
 
-        # 2. Failed login with accept_terms=1 preserves checked state
+        # 2. AJAX quick-save from the section modal saves changes and returns JSON
+        ajax_save = self.client.post(
+            reverse('clergy:my_profile'),
+            {
+                'name': 'Fr. Quick Modal Save',
+                'gender': 'Male',
+                'civil_status': 'Single',
+                'date_of_birth': '1980-05-10',
+                'place_of_birth': 'Bontoc',
+                'address': '123 Cathedral Rd',
+                'email': 'fr.quick@example.com',
+                'baptism_date': '1980-06-15',
+                'confirmation_date': '1992-05-20',
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(ajax_save.status_code, 200)
+        self.assertTrue(ajax_save.json()['ok'])
+        self.record.refresh_from_db()
+        self.assertEqual(self.record.name, 'Fr. Quick Modal Save')
+
+        # 3. Failed login with accept_terms=1 preserves checked state
         anon = self.client_class()
         login_res = anon.post(reverse('index'), {
             'username': 'clergy1',

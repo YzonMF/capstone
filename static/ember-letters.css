@@ -12,9 +12,9 @@
   border: 1px solid var(--border, var(--line, #e1e7ee));
   background: #fff;
   border-radius: 8px;
-  padding: 9px 14px;
+  padding: 10px 15px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #334155;
   display: inline-flex;
@@ -64,13 +64,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 14px;
   color: #17212b;
 }
 
 .ember-progress-summary i {
   color: var(--blue, #2f6fed);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .ember-header-actions {
@@ -83,7 +83,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 700;
   padding: 5px 10px;
   border-radius: 20px;
@@ -240,7 +240,7 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 12.5px;
+  font-size: 14px;
 }
 
 .ember-q-filename {
@@ -253,13 +253,13 @@
 }
 
 .ember-q-meta {
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--muted, #718096);
   margin-top: 2px;
 }
 
 .ember-q-error {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--red, #c94b47);
   font-weight: 600;
 }

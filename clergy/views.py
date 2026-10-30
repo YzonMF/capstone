@@ -205,7 +205,10 @@ def my_profile(request):
         record_form = ClergyRecordSelfServiceForm(request.POST, instance=profile.record)
         pic_form = ProfilePictureForm(request.POST, request.FILES) if 'profile_picture' in request.FILES else None
         if pic_form is not None and not pic_form.is_valid():
-            messages.error(request, first_error(pic_form) or 'Please choose a valid JPG or PNG image.')
+            err = first_error(pic_form) or 'Please choose a valid JPG or PNG image.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
         elif form.is_valid() and record_form.is_valid():
             with transaction.atomic():
                 saved_profile = form.save()
@@ -270,10 +273,15 @@ def my_profile(request):
                 if pic_form is not None:
                     save_profile_picture(profile.record, pic_form.cleaned_data['profile_picture'])
                 profile_updated(request.user, (record_form, form))
+            if is_ajax:
+                return JsonResponse({'ok': True, 'message': 'Changes saved successfully.'})
             messages.success(request, 'Profile updated successfully.')
             return redirect('clergy:my_profile')
         else:
-            messages.error(request, 'Please check the form and try again.')
+            err = first_error(record_form) or first_error(form) or 'Please check the form and try again.'
+            if is_ajax:
+                return JsonResponse({'ok': False, 'error': err}, status=400)
+            messages.error(request, err)
     else:
         form = ClergyProfileForm(instance=profile)
         record_form = ClergyRecordSelfServiceForm(instance=profile.record)

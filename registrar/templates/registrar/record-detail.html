@@ -11,12 +11,12 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 6px;
-    padding: 5px 8px;
+    padding: 6px 10px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 11px;
-    line-height: 1.3;
+    font-size: 12.5px;
+    line-height: 1.35;
   }
   .date-att-bar.uploaded {
     background: #f0fdf4;
@@ -48,8 +48,8 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 2px 7px;
-    font-size: 11px;
+    padding: 4px 9px;
+    font-size: 12.5px;
     font-weight: 600;
     border-radius: 4px;
     text-decoration: none;
@@ -82,16 +82,37 @@
     background: #dbeafe;
   }
   .section-nav-sticky {
+    position: -webkit-sticky;
     position: sticky;
-    top: 0;
-    z-index: 25;
-    background: rgba(255, 255, 255, 0.96);
+    top: 8px;
+    z-index: 30;
+    background: rgba(255, 255, 255, 0.97);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     padding: 8px 10px;
     margin: 0 0 16px 0;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  }
+  @media (max-width: 800px) {
+    /* Mobile fix: overflow-x:auto on .panel creates a scroll container that breaks position:sticky */
+    .panel {
+      overflow-x: visible !important;
+    }
+    .section-card {
+      overflow-x: auto;
+    }
+    .sidebar {
+      z-index: 35;
+    }
+    .section-nav-sticky {
+      top: 62px;
+      margin-left: -4px;
+      margin-right: -4px;
+      padding: 8px 8px;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+    }
   }
   .section-nav-inner {
     display: flex;
@@ -101,7 +122,7 @@
     scrollbar-width: thin;
   }
   .section-nav-label {
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 700;
     color: #64748b;
     text-transform: uppercase;
@@ -114,9 +135,9 @@
     align-items: center;
     gap: 5px;
     white-space: nowrap;
-    padding: 5px 11px;
+    padding: 6px 13px;
     border-radius: 9999px;
-    font-size: 12px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #334155;
     background: #f1f5f9;
@@ -140,6 +161,57 @@
   .field-highlight-flash {
     animation: fieldFlashHighlight 1.8s ease-out;
     border-radius: 8px;
+  }
+  .modal-bg.section-modal-active {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal.section-quick-modal {
+    width: min(820px, 95vw);
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28);
+    overflow: hidden;
+  }
+  .section-quick-modal .modal-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    margin: 0;
+  }
+  .section-quick-modal .section-modal-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .section-quick-modal .section-modal-body .section-card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 !important;
+  }
+  .section-quick-modal .section-modal-foot {
+    padding: 12px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #quickUploadModal {
+    z-index: 80 !important;
   }
   </style>
 {% endblock %}
@@ -177,22 +249,22 @@
       <div id="tabPersonal" class="tab-content">
         <nav class="section-nav-sticky" id="personalSectionNav" aria-label="Quick section navigation">
           <div class="section-nav-inner">
-            <span class="section-nav-label"><i class="fa-solid fa-compass"></i> Jump to:</span>
-            <a href="#sec-reg-identity" class="nav-pill active"><i class="fa-solid fa-id-card"></i> Identity</a>
-            <a href="#sec-reg-contact" class="nav-pill"><i class="fa-solid fa-address-book"></i> Contact</a>
-            <a href="#sec-reg-sacraments" class="nav-pill"><i class="fa-solid fa-water"></i> Sacraments</a>
-            <a href="#sec-reg-orders" class="nav-pill"><i class="fa-solid fa-church"></i> Holy Orders</a>
-            <a href="#sec-reg-status" class="nav-pill"><i class="fa-solid fa-briefcase"></i> Status &amp; Tenure</a>
-            <a href="#sec-reg-deployments" class="nav-pill"><i class="fa-solid fa-map-location-dot"></i> Deployments</a>
-            <a href="#sec-reg-family" class="nav-pill"><i class="fa-solid fa-people-roof"></i> Family &amp; Education</a>
+            <span class="section-nav-label"><i class="fa-solid fa-bolt" style="color:#2f6fed;"></i> Quick Edit:</span>
+            <a href="#sec-reg-identity" class="nav-pill active" data-section-modal="sec-reg-identity" data-section-title="Identity &amp; Basic Details"><i class="fa-solid fa-id-card"></i> Identity</a>
+            <a href="#sec-reg-contact" class="nav-pill" data-section-modal="sec-reg-contact" data-section-title="Contact &amp; Residential Information"><i class="fa-solid fa-address-book"></i> Contact</a>
+            <a href="#sec-reg-sacraments" class="nav-pill" data-section-modal="sec-reg-sacraments" data-section-title="Sacramental Records"><i class="fa-solid fa-water"></i> Sacraments</a>
+            <a href="#sec-reg-orders" class="nav-pill" data-section-modal="sec-reg-orders" data-section-title="Holy Orders &amp; Ordination History"><i class="fa-solid fa-church"></i> Holy Orders</a>
+            <a href="#sec-reg-status" class="nav-pill" data-section-modal="sec-reg-status" data-section-title="Deployment &amp; Official Status"><i class="fa-solid fa-briefcase"></i> Status &amp; Tenure</a>
+            <a href="#sec-reg-deployments" class="nav-pill" data-section-modal="sec-reg-deployments" data-section-title="Deployments &amp; Station History"><i class="fa-solid fa-map-location-dot"></i> Deployments</a>
+            <a href="#sec-reg-family" class="nav-pill" data-section-modal="sec-reg-family" data-section-title="Family &amp; Educational Background"><i class="fa-solid fa-people-roof"></i> Family &amp; Education</a>
           </div>
         </nav>
         <form method="post" id="recordPersonalForm">
           {% csrf_token %}
           <div class="section-card">
             <h4><i class="fa-solid fa-user"></i> Personal &amp; Contact Information</h4>
-            <div class="edit-grid">
-              <div class="edit-field full" id="sec-reg-identity" style="scroll-margin-top: 70px; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+            <div class="edit-grid" id="sec-reg-identity" style="scroll-margin-top: 70px;">
+              <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-id-card" style="color: #2f6fed;"></i> Identity &amp; Basic Details
               </div>
               <div class="edit-field">
@@ -226,8 +298,10 @@
                 {% endwith %}
               </div>
               <div class="edit-field"><label>Gender</label><select name="gender"><option value="">Select</option><option {% if record.gender == 'Male' %}selected{% endif %}>Male</option><option {% if record.gender == 'Female' %}selected{% endif %}>Female</option></select></div>
+            </div>
 
-              <div class="edit-field full" id="sec-reg-contact" style="scroll-margin-top: 70px; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+            <div class="edit-grid" id="sec-reg-contact" style="scroll-margin-top: 70px;">
+              <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-address-book" style="color: #2f6fed;"></i> Contact &amp; Residential Information
               </div>
               <div class="edit-field full">
@@ -252,8 +326,10 @@
               <div class="edit-field">
                 <label>Email Address</label><input name="email" type="email" value="{{ record.email|default:'' }}">
               </div>
+            </div>
 
-              <div class="edit-field full" id="sec-reg-sacraments" style="scroll-margin-top: 70px; font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+            <div class="edit-grid" id="sec-reg-sacraments" style="scroll-margin-top: 70px;">
+              <div class="edit-field full" style="font-weight: 700; font-size: 13px; color: #17324d; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-water" style="color: #2f6fed;"></i> Sacramental Records
               </div>
               <div class="edit-field">
@@ -918,6 +994,33 @@
     </form>
   </div>
 </div>
+
+<div class="modal-bg" id="sectionQuickEditModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal section-quick-modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="sectionQuickEditTitle"><i class="fa-solid fa-pen-to-square" style="color:#2f6fed;"></i> <span>Quick Edit Section</span></h3>
+        <span class="muted">Editing {{ record.name }} — changes here sync directly with the main form and can be saved immediately</span>
+      </div>
+      <button class="close" type="button" aria-label="Close" id="sectionQuickEditCloseTop">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="section-modal-body" id="sectionQuickEditBody"></div>
+    <div class="section-modal-foot">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" class="btn small secondary" id="sectionQuickEditPrevBtn"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+        <button type="button" class="btn small secondary" id="sectionQuickEditNextBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" class="btn secondary" id="sectionQuickEditDoneBtn"><i class="fa-solid fa-arrow-down-short-wide"></i> Back to Full Page</button>
+        {% if not record.is_archived %}
+        <button type="button" class="btn" id="sectionQuickEditSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -1212,6 +1315,162 @@
         }
       });
     }
+
+    // Section Quick-Edit Modal (clicking Jump-to / Quick-Edit pills opens the section in a modal with its own Save Changes button)
+    const sectionModal = document.getElementById('sectionQuickEditModal');
+    const sectionModalBody = document.getElementById('sectionQuickEditBody');
+    const sectionModalTitleSpan = document.querySelector('#sectionQuickEditTitle span');
+    const sectionSaveBtn = document.getElementById('sectionQuickEditSaveBtn');
+    const sectionPrevBtn = document.getElementById('sectionQuickEditPrevBtn');
+    const sectionNextBtn = document.getElementById('sectionQuickEditNextBtn');
+    const sectionPills = Array.from(document.querySelectorAll('#personalSectionNav .nav-pill[data-section-modal]'));
+    const READONLY_SECTIONS = new Set(['sec-reg-deployments', 'sec-reg-family']);
+
+    let activeSectionNode = null;
+    let activeSectionPlaceholder = null;
+    let activeSectionId = '';
+
+    function returnSectionToPage() {
+      if (activeSectionNode && activeSectionPlaceholder && activeSectionPlaceholder.parentNode) {
+        activeSectionPlaceholder.parentNode.insertBefore(activeSectionNode, activeSectionPlaceholder);
+        activeSectionPlaceholder.remove();
+      }
+      activeSectionNode = null;
+      activeSectionPlaceholder = null;
+    }
+
+    function openSectionInModal(sectionId) {
+      const targetEl = document.getElementById(sectionId);
+      if (!targetEl || !sectionModal || !sectionModalBody) return;
+
+      if (activeSectionNode && activeSectionId !== sectionId) {
+        returnSectionToPage();
+      }
+
+      if (!activeSectionNode) {
+        activeSectionPlaceholder = document.createElement('div');
+        activeSectionPlaceholder.style.display = 'none';
+        targetEl.parentNode.insertBefore(activeSectionPlaceholder, targetEl);
+        sectionModalBody.appendChild(targetEl);
+        activeSectionNode = targetEl;
+      }
+      activeSectionId = sectionId;
+
+      const pill = sectionPills.find(function(p) { return p.dataset.sectionModal === sectionId; });
+      sectionPills.forEach(function(p) { p.classList.toggle('active', p === pill); });
+      if (sectionModalTitleSpan && pill) {
+        sectionModalTitleSpan.textContent = pill.dataset.sectionTitle || pill.textContent.trim();
+      }
+
+      const idx = sectionPills.indexOf(pill);
+      if (sectionPrevBtn) sectionPrevBtn.disabled = idx <= 0;
+      if (sectionNextBtn) sectionNextBtn.disabled = idx === -1 || idx >= sectionPills.length - 1;
+      if (sectionSaveBtn) {
+        sectionSaveBtn.style.display = READONLY_SECTIONS.has(sectionId) ? 'none' : '';
+      }
+
+      sectionModal.style.display = 'flex';
+      sectionModal.classList.add('show', 'section-modal-active');
+      sectionModalBody.scrollTop = 0;
+
+      const firstInput = targetEl.querySelector('input:not([type="hidden"]):not([type="file"]):not([readonly]), select, textarea');
+      if (firstInput) {
+        setTimeout(function() {
+          try { firstInput.focus({ preventScroll: true }); } catch (_e) {}
+        }, 120);
+      }
+    }
+
+    function closeSectionModal(scrollToSection) {
+      const lastNode = activeSectionNode;
+      returnSectionToPage();
+      activeSectionId = '';
+      if (sectionModal) {
+        sectionModal.classList.remove('show', 'section-modal-active');
+        sectionModal.style.display = 'none';
+      }
+      if (scrollToSection && lastNode) {
+        lastNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        lastNode.classList.remove('field-highlight-flash');
+        void lastNode.offsetWidth;
+        lastNode.classList.add('field-highlight-flash');
+      }
+    }
+
+    sectionPills.forEach(function(pill) {
+      pill.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        openSectionInModal(pill.dataset.sectionModal);
+      }, true);
+    });
+
+    document.getElementById('sectionQuickEditCloseTop')?.addEventListener('click', function() { closeSectionModal(true); });
+    document.getElementById('sectionQuickEditDoneBtn')?.addEventListener('click', function() { closeSectionModal(true); });
+    sectionModal?.addEventListener('click', function(e) {
+      if (e.target === sectionModal) closeSectionModal(true);
+    });
+
+    sectionPrevBtn?.addEventListener('click', function() {
+      const idx = sectionPills.findIndex(function(p) { return p.dataset.sectionModal === activeSectionId; });
+      if (idx > 0) openSectionInModal(sectionPills[idx - 1].dataset.sectionModal);
+    });
+
+    sectionNextBtn?.addEventListener('click', function() {
+      const idx = sectionPills.findIndex(function(p) { return p.dataset.sectionModal === activeSectionId; });
+      if (idx >= 0 && idx < sectionPills.length - 1) openSectionInModal(sectionPills[idx + 1].dataset.sectionModal);
+    });
+
+    // Ensure before mainForm submits for any reason, any section inside the modal is returned to mainForm
+    mainForm?.addEventListener('submit', function() {
+      returnSectionToPage();
+    }, true);
+
+    sectionSaveBtn?.addEventListener('click', async function() {
+      if (!mainForm) return;
+      const origHtml = sectionSaveBtn.innerHTML;
+      sectionSaveBtn.disabled = true;
+      sectionSaveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+
+      // Temporarily return the section node into mainForm so FormData(mainForm) captures all fields
+      const savedSectionId = activeSectionId;
+      returnSectionToPage();
+      const formData = new FormData(mainForm);
+      // Put it back in modal while saving or close on success
+      openSectionInModal(savedSectionId);
+
+      try {
+        const res = await fetch(mainForm.getAttribute('action') || window.location.href, {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          if (typeof showToast === 'function') {
+            showToast((data && data.error) || 'Please check the form and try again.', 'error');
+          }
+          return;
+        }
+        try {
+          sessionStorage.removeItem(DRAFT_KEY);
+          sessionStorage.removeItem(RETURN_FIELD_KEY);
+        } catch (_e) {}
+        const saveBar = document.querySelector('.floating-save-bar');
+        if (saveBar) saveBar.classList.remove('visible');
+        if (typeof showToast === 'function') {
+          showToast(data.message || 'Changes saved successfully.', 'success');
+        }
+        closeSectionModal(true);
+      } catch (_err) {
+        if (typeof showToast === 'function') {
+          showToast('Network error while saving. Please try again.', 'error');
+        }
+      } finally {
+        sectionSaveBtn.disabled = false;
+        sectionSaveBtn.innerHTML = origHtml;
+      }
+    });
   })();
   </script>
 {% endblock %}
