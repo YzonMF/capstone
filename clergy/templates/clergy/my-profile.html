@@ -1,7 +1,7 @@
 {% extends 'clergy/base.html' %}
 {% load static %}
-{% block page_name %}My Record &amp; Profile{% endblock %}
-{% block page_name_heading %}My Record &amp; Profile{% endblock %}
+{% block page_name %}My Profile{% endblock %}
+{% block page_name_heading %}My Profile{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'code-field.css' %}">
@@ -358,26 +358,25 @@
   <div class="panel">
 
     <div class="page-tabs">
-      <a class="{% if active_tab == 'personal' %}active{% endif %}" href="{% url 'clergy:my_profile' %}"><i class="fa-solid fa-user"></i> Personal Information</a>
+      <a class="{% if active_tab == 'personal' %}active{% endif %}" href="{% url 'clergy:my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
       <a class="{% if active_tab == 'security' %}active{% endif %}" href="{% url 'clergy:my_profile' %}?tab=security"><i class="fa-solid fa-shield-halved"></i> Security</a>
     </div>
 
     {% if active_tab == 'security' %}
-    <p class="muted tab-intro">Your sign-in details, mobile number and the devices you've trusted. Your number is shown on Personal Information too, but it can only be changed here.</p>
+    <p class="muted tab-intro">Your sign-in details, mobile number and the devices you've trusted. Your number is shown on My Profile too, but it can only be changed here.</p>
     {% include '_security_sections.html' %}
     {% else %}
 
-    <p class="muted tab-intro">Your own record is available for viewing. Personal information may be updated by you; official clergy information remains controlled by the Registrar.</p>
+    <p class="muted tab-intro">Your personal profile is available for viewing and updating. Click any card or section tab below to edit your information.</p>
 
     <div class="notice">
-      You can access only your own clergy record. Your Clergy ID, official ecclesiastical status, deployment assignment, and contract terms are maintained by the Registrar.
+      You can access only your own clergy profile. Your official Clergy ID, ecclesiastical status, deployment assignment, and contract terms are displayed on your Dashboard and maintained by the Registrar.
     </div>
 
     <nav class="section-nav-sticky" id="personalSectionNav" aria-label="Quick section navigation">
       <div class="section-nav-inner">
         <span class="section-nav-label"><i class="fa-solid fa-bolt" style="color:#2f6fed;"></i> Quick Edit:</span>
-        <a href="#sec-record" class="nav-pill active" data-section-modal="sec-record" data-section-title="My Clergy Record"><i class="fa-solid fa-id-badge"></i> Clergy Record</a>
-        <a href="#sec-identity" class="nav-pill" data-section-modal="sec-identity" data-section-title="Identity &amp; Basic Information"><i class="fa-solid fa-id-card"></i> Identity</a>
+        <a href="#sec-identity" class="nav-pill active" data-section-modal="sec-identity" data-section-title="Identity &amp; Basic Information"><i class="fa-solid fa-id-card"></i> Identity</a>
         <a href="#sec-contact" class="nav-pill" data-section-modal="sec-contact" data-section-title="Contact &amp; Residential Information"><i class="fa-solid fa-address-book"></i> Contact</a>
         <a href="#sec-sacraments" class="nav-pill" data-section-modal="sec-sacraments" data-section-title="Sacramental Records"><i class="fa-solid fa-water"></i> Sacraments</a>
         <a href="#sec-orders" class="nav-pill" data-section-modal="sec-orders" data-section-title="Holy Orders &amp; Ordination History"><i class="fa-solid fa-church"></i> Holy Orders</a>
@@ -388,25 +387,6 @@
         <a href="#sec-medical" class="nav-pill" data-section-modal="sec-medical" data-section-title="Medical / Psychiatric Status"><i class="fa-solid fa-notes-medical"></i> Medical</a>
       </div>
     </nav>
-
-    <div class="section-card" id="sec-record" style="scroll-margin-top: 70px;">
-      <h3><i class="fa-solid fa-id-badge"></i> My Clergy Record</h3>
-      <div class="info-grid">
-        <div class="info"><label>Clergy ID</label><b>{{ profile.record.id|default:"Pending" }}</b></div>
-        <div class="info"><label>Current Rank</label><b>{{ profile.record.get_rank_display|default:"—" }}</b></div>
-        <div class="info"><label>Current Status</label><b>{{ profile.record.status|default:"Active" }}</b></div>
-        <div class="info"><label>Deanery</label><b>{{ profile.record.deanery|default:"—" }}</b></div>
-        <div class="info"><label>Deployment / Assignment</label><b>{{ profile.record.assignment|default:"Not yet assigned" }}</b></div>
-        <div class="info"><label>Contract End</label><b>{{ profile.record.contract_end|default:"Not yet assigned" }}</b>
-          {% if days_left is not None %}<div class="muted">{% if days_left < 0 %}Contract ended{% else %}{{ days_left }} day{{ days_left|pluralize }} left{% endif %}</div>{% endif %}
-        </div>
-        <div class="info"><label>Date of Retirement</label><b>{{ profile.record.retirement_date|default:"—" }}</b></div>
-        <div class="info"><label>Years of Service</label><b>{{ profile.record.years_of_service_display }}</b></div>
-        {% if profile.record.status == 'On Leave' %}
-        <div class="info full"><label>Reason for Leave</label><b>{{ profile.record.leave_reason|default:"Not specified" }}</b></div>
-        {% endif %}
-      </div>
-    </div>
 
     <div class="section-card" style="margin-top:16px;">
       <h3><i class="fa-solid fa-camera"></i> Profile Picture</h3>
@@ -1682,7 +1662,7 @@
   const sectionPrevBtn = document.getElementById('sectionQuickEditPrevBtn');
   const sectionNextBtn = document.getElementById('sectionQuickEditNextBtn');
   const sectionPills = Array.from(document.querySelectorAll('#personalSectionNav .nav-pill[data-section-modal]'));
-  const READONLY_SECTIONS = new Set(['sec-record', 'sec-deployments', 'sec-medical']);
+  const READONLY_SECTIONS = new Set(['sec-deployments', 'sec-medical']);
 
   let activeSectionNode = null;
   let activeSectionPlaceholder = null;

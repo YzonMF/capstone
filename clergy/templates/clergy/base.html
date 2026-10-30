@@ -31,7 +31,7 @@
     <div class="nav">
       <div class="nav-title">My Portal</div>
       <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'clergy:dashboard' %}"><i class="fa-solid fa-house"></i> Dashboard</a>
-      <a class="{% if active_page == 'my_profile' %}active{% endif %}" href="{% url 'clergy:my_profile' %}"><i class="fa-solid fa-id-card"></i> My Record &amp; Profile</a>
+      <a class="{% if active_page == 'my_profile' %}active{% endif %}" href="{% url 'clergy:my_profile' %}"><i class="fa-solid fa-user"></i> My Profile</a>
       <a class="{% if active_page == 'my_requirements' %}active{% endif %}" href="{% url 'clergy:my_requirements' %}"><i class="fa-solid fa-file-lines"></i> My Requirements &amp; Attachments {% if nav_documents_total %}<span class="badge blue{% if nav_documents_submitted == nav_documents_total %} complete{% endif %}">{{ nav_documents_submitted }}/{{ nav_documents_total }}</span>{% endif %}</a>
       <a class="{% if active_page == 'notifications' %}active{% endif %}" href="{% url 'clergy:notifications' %}"><i class="fa-solid fa-bell"></i> Notifications {% if nav_notifications_unread %}<span class="badge red" title="{{ nav_notifications_unread }} unread">{% if nav_notifications_unread > 99 %}99+{% else %}{{ nav_notifications_unread }}{% endif %}</span>{% endif %}</a>
       <a class="nav-logout" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -54,7 +54,7 @@
       </div>
       <div class="top-right">
         {% block top_actions %}{% endblock %}
-        <a class="top-profile" href="{% url 'clergy:my_profile' %}" title="My Record &amp; Profile">
+        <a class="top-profile" href="{% url 'clergy:my_profile' %}" title="My Profile">
           <div class="top-avatar">{% if profile.record and profile.record.profile_picture %}<img src="{% url 'registrar:view_profile_picture' profile.record.id %}" alt="{{ profile.full_name }}" width="64" height="64">{% else %}<span>{{ profile.initials }}</span>{% endif %}</div>
           <div class="top-profile-meta"><b>{{ profile.full_name }}</b></div>
         </a>
