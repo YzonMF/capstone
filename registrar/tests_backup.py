@@ -133,7 +133,7 @@ class DocumentsArchiveTests(MediaFolderMixin, BackupTestCase):
         self.medical = self.add_document('Medical Exam Result', 'medical.jpg', b'\xff\xd8\xff MEDICAL')
 
     def add_document(self, type_name, filename, content):
-        document_type = DocumentType.objects.create(name=type_name)
+        document_type, _ = DocumentType.objects.get_or_create(name=type_name)
         return save_document(self.record, document_type, ContentFile(content, name=filename), '')
 
     def download(self, password=PASSWORD):

@@ -22,6 +22,7 @@
                class="search"
                placeholder="Search by clergy name, assignment or ID..."
                value="{{ search_query }}">
+        <!-- ds-allow-native-select: search filter dropdown -->
         <select name="deanery" class="select" data-autosubmit>
           <option value="">All Deaneries</option>
           {% for d in deaneries %}
@@ -29,6 +30,7 @@
                     {% if deanery_filter|stringformat:"s" == d.id|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
           {% endfor %}
         </select>
+        <!-- ds-allow-native-select: search filter dropdown -->
         <select name="rank" class="select" data-autosubmit>
           <option value="">All Ranks</option>
           {% for value, label in rank_choices %}
@@ -36,6 +38,7 @@
                     {% if rank_filter|lower == value|lower %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
+        <!-- ds-allow-native-select: search filter dropdown -->
         <select name="status" class="select" data-autosubmit>
           <option value="">All Status</option>
           {% for value, label in status_choices %}
@@ -62,9 +65,9 @@
             <tr>
               <td>{{ record.id }}</td>
               <td><b>{{ record.name }}</b>{% if record.is_archived %}<br><span class="muted">Archived {{ record.archived_at|date:"M d, Y" }}</span>{% endif %}</td>
-              <td>{{ record.assignment|default:"—" }}</td>
+              <td>{{ record.assignment|default:"None" }}</td>
               <td><span class="badge {{ record.status|status_badge_class }}">{{ record.status }}</span></td>
-              <td>{{ record.contract_end|default:"—" }}</td>
+              <td>{{ record.contract_end|default:"None" }}</td>
               <td>
                 {% if record.account %}
                   {% if record.account.state == "activated" %}
@@ -137,61 +140,84 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <form method="post" action="{% url 'registrar:create_record' %}">
+      <form method="post" action="{% url 'registrar:create_record' %}" id="createRecordForm" novalidate>
+        {% if record_modal_errors %}
+        <div class="alert alert-error" role="alert" style="margin-bottom: var(--spacing-md, 1rem);">
+          <strong>Please resolve the following:</strong>
+          <ul>
+            {% for field, errs in record_modal_errors.items %}
+              {% for err in errs %}
+                <li>{{ field|title }}: {{ err }}</li>
+              {% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
         <div class="form-grid">
           {% csrf_token %}
-          <div class="field">
-            <label>Clergy Name</label><input name="name" required>
+          <div class="field {% if record_modal_errors.name %}has-error{% endif %}">
+            <label for="newClergyName">Clergy Name</label><input id="newClergyName" name="name" required value="{{ record_modal_draft.name|default:'' }}" {% if record_modal_errors.name %}aria-invalid="true"{% endif %}>
           </div>
           <div class="field">
-            <label>Record ID</label><input id="newId" value="{{ next_id }}" readonly>
+            <label for="newId">Record ID</label><input id="newId" value="{{ next_id }}" readonly>
           </div>
           <div class="field">
-            <label>Deanery</label><select name="deanery"
+            <label for="newDeanery">Deanery</label>
+            <!-- ds-allow-native-select: legacy registrar cascade -->
+            <select name="deanery"
         id="newDeanery"
-        data-parish-target="newAssignment">
+        data-parish-target="newAssignment"
+        data-selected-deanery="{{ record_modal_draft.deanery|default:'' }}">
               <option value="">Select Deanery</option>
             </select>
           </div>
-          <div class="field">
-            <label>Parish / Assignment</label><select name="assignment" id="newAssignment" required disabled>
+          <div class="field {% if record_modal_errors.assignment %}has-error{% endif %}">
+            <label for="newAssignment">Parish / Assignment</label>
+            <!-- ds-allow-native-select: legacy registrar cascade -->
+            <select name="assignment" id="newAssignment" required disabled data-selected-assignment="{{ record_modal_draft.assignment|default:'' }}" {% if record_modal_errors.assignment %}aria-invalid="true"{% endif %}>
               <option value="">Select Deanery first</option>
             </select>
           </div>
           <div class="field">
-            <label>Status</label><select name="status"
+            <label for="newStatus">Status</label>
+            <!-- ds-allow-native-select: legacy registrar cascade -->
+            <select name="status"
         id="newStatus"
         data-leave-field="newLeaveReasonField">
-              <option>Active</option>
-              <option>On Leave</option>
-              <option>Missionary to Other Diocese</option>
-              <option>Retired</option>
+              <option {% if record_modal_draft.status == 'Active' or not record_modal_draft.status %}selected{% endif %}>Active</option>
+              <option {% if record_modal_draft.status == 'On Leave' %}selected{% endif %}>On Leave</option>
+              <option {% if record_modal_draft.status == 'Missionary to Other Diocese' %}selected{% endif %}>Missionary to Other Diocese</option>
+              <option {% if record_modal_draft.status == 'Retired' %}selected{% endif %}>Retired</option>
             </select>
           </div>
-          <div class="field hidden" id="newLeaveReasonField">
-            <label>Leave Reason</label><input name="leave_reason"
+          <div class="field {% if record_modal_draft.status != 'On Leave' %}hidden{% endif %} {% if record_modal_errors.leave_reason %}has-error{% endif %}" id="newLeaveReasonField">
+            <label for="newLeaveReason">Leave Reason</label><input name="leave_reason"
        id="newLeaveReason"
-       placeholder="e.g. medical leave, sabbatical">
+       placeholder="e.g. medical leave, sabbatical"
+       value="{{ record_modal_draft.leave_reason|default:'' }}"
+       {% if record_modal_errors.leave_reason %}aria-invalid="true"{% endif %}>
           </div>
           <div class="field">
-            <label>Rank</label><select name="rank">
-              <option value="postulancy">Postulancy</option>
-              <option value="deacon" selected>Deacon</option>
-              <option value="priest">Priest</option>
-              <option value="bishop">Bishop</option>
+            <label for="newRank">Rank</label>
+            <!-- ds-allow-native-select: legacy registrar cascade -->
+            <select name="rank" id="newRank">
+              <option value="postulancy" {% if record_modal_draft.rank == 'postulancy' %}selected{% endif %}>Postulancy</option>
+              <option value="deacon" {% if record_modal_draft.rank == 'deacon' or not record_modal_draft.rank %}selected{% endif %}>Deacon</option>
+              <option value="priest" {% if record_modal_draft.rank == 'priest' %}selected{% endif %}>Priest</option>
+              <option value="bishop" {% if record_modal_draft.rank == 'bishop' %}selected{% endif %}>Bishop</option>
             </select>
           </div>
-          <div class="field">
-            <label>Date Admitted as Holy Order</label><input name="holy_orders_date" type="date">
+          <div class="field {% if record_modal_errors.holy_orders_date %}has-error{% endif %}">
+            <label for="newHolyOrdersDate">Date Admitted as Holy Order</label><input id="newHolyOrdersDate" name="holy_orders_date" type="date" value="{{ record_modal_draft.holy_orders_date|default:'' }}">
           </div>
-          <div class="field">
-            <label>Date of Baptism</label><input name="baptism_date" type="date">
+          <div class="field {% if record_modal_errors.baptism_date %}has-error{% endif %}">
+            <label for="newBaptismDate">Date of Baptism</label><input id="newBaptismDate" name="baptism_date" type="date" value="{{ record_modal_draft.baptism_date|default:'' }}">
           </div>
-          <div class="field">
-            <label>Date of Confirmation</label><input name="confirmation_date" type="date">
+          <div class="field {% if record_modal_errors.confirmation_date %}has-error{% endif %}">
+            <label for="newConfirmationDate">Date of Confirmation</label><input id="newConfirmationDate" name="confirmation_date" type="date" value="{{ record_modal_draft.confirmation_date|default:'' }}">
           </div>
-          <div class="field">
-            <label>Contract End</label><input name="contract_end" type="date">
+          <div class="field {% if record_modal_errors.contract_end %}has-error{% endif %}">
+            <label for="newContractEnd">Contract End</label><input id="newContractEnd" name="contract_end" type="date" value="{{ record_modal_draft.contract_end|default:'' }}">
           </div>
         </div>
         <p class="muted form-note">A portal username and a random temporary password are made for this person automatically and opened as a printable slip.</p>
@@ -220,7 +246,7 @@
       </div>
       <form method="post" id="linkAccountForm">
         {% csrf_token %}
-        <p class="muted no-margin">The username is the record ID, and a random temporary password is generated. Both open as a printable slip — the password is shown only once.</p>
+        <p class="muted no-margin">The username is the record ID, and a random temporary password is generated. Both open as a printable slip (the password is shown only once).</p>
         <div class="modal-actions">
           <button type="button"
                   class="btn secondary"
@@ -234,7 +260,7 @@
     <div class="modal">
       <div class="modal-head">
         <div>
-          <h3><i class="fa-solid fa-mobile-screen"></i> Reset Account — Lost Phone</h3>
+          <h3><i class="fa-solid fa-mobile-screen"></i> Reset Account: Lost Phone</h3>
           <span class="muted" id="resetAccountName"></span>
         </div>
         <button class="close"
@@ -247,7 +273,7 @@
       <form method="post" id="resetAccountForm">
         {% csrf_token %}
         <input type="hidden" name="kind" value="lost_phone">
-        <div class="alert">Only do this after confirming the owner's identity in person. Their number is forgotten, every device and open session is signed out, and a <b>new temporary password</b> is printed — the old password stops working. They then register a new number when they sign in.</div>
+        <div class="alert">Only do this after confirming the owner's identity in person. Their number is forgotten, every device and open session is signed out, and a <b>new temporary password</b> is printed; the old password stops working. They then register a new number when they sign in.</div>
         <div class="field">
           <label>Note (optional)</label><input name="note" maxlength="255" placeholder="e.g. phone lost, ID checked">
         </div>

@@ -239,14 +239,19 @@ if SMS_BACKEND == 'semaphore' and not SEMAPHORE_API_KEY and not TESTING:
         '(or API_Key) in .env, or set SMS_BACKEND=test for local development.'
     )
 
+SMS_MESSAGE_TEMPLATE = os.environ.get(
+    'SMS_MESSAGE_TEMPLATE',
+    'EDNP Clergy Records: your verification code is {otp}. It expires in 5 minutes. Never share it with anyone.'
+)
+
 OTP_LENGTH = 6
 OTP_TTL_SECONDS = 5 * 60
 OTP_MAX_ATTEMPTS = 3           # wrong guesses per code before it is dead
-OTP_RESEND_COOLDOWN_SECONDS = 60
-OTP_MAX_SENDS_PER_HOUR = 5     # per account, and separately per phone number (each send costs credits)
+OTP_RESEND_COOLDOWN_SECONDS = int(os.environ.get('OTP_RESEND_COOLDOWN_SECONDS', 60))
+OTP_MAX_SENDS_PER_HOUR = int(os.environ.get('OTP_MAX_SENDS_PER_HOUR', 5))
 # Registering or changing a number: this many codes per account per rolling 24 hours, then it
 # opens again the next day. Sign-in codes for a new device aren't held to this (see otp.py).
-OTP_MAX_SENDS_PER_DAY = 3
+OTP_MAX_SENDS_PER_DAY = int(os.environ.get('OTP_MAX_SENDS_PER_DAY', 3))
 FORGOT_MAX_SENDS_PER_DAY = 3                 # forgot-password codes per phone number per rolling 24 hours
 FORGOT_MAX_SENDS_PER_HOUR_SITEWIDE = 60      # ceiling across the whole site, a guard on SMS credits
 

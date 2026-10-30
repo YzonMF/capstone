@@ -107,6 +107,15 @@ if(profilePicInput){
    padding: 0 !important;
    overflow: hidden;
   }
+  #docPreviewModal {
+   z-index: 95 !important;
+  }
+  .toast {
+   z-index: 120 !important;
+  }
+  .ph-picker-panel {
+   z-index: 110 !important;
+  }
   .doc-preview-head {
    display: flex;
    align-items: center;
@@ -539,6 +548,8 @@ if(profilePicInput){
   document.getElementById('floatingSaveBtn')?.addEventListener('click',function(){
    isDirty=false;
    saveBar.classList.remove('visible');
+   const secSave=document.getElementById('sectionQuickEditSaveBtn');
+   if(secSave){secSave.click();return;}
    profileForm.requestSubmit();
   });
   document.getElementById('floatingDiscardBtn')?.addEventListener('click',function(){

@@ -26,7 +26,8 @@ REQUEST_TIMEOUT_SECONDS = 10
 
 # {otp} is where the code goes. Must not begin with "TEST" — Semaphore silently drops
 # messages that do. Kept under 160 characters: each extra 160 is another text, and credits.
-MESSAGE_TEMPLATE = 'EDNP Clergy Records: your verification code is {otp}. It expires in 5 minutes. Never share it with anyone.'
+DEFAULT_MESSAGE_TEMPLATE = 'EDNP Clergy Records: your verification code is {otp}. It expires in 5 minutes. Never share it with anyone.'
+MESSAGE_TEMPLATE = DEFAULT_MESSAGE_TEMPLATE
 
 
 class SmsError(Exception):
@@ -50,13 +51,14 @@ def _send_via_semaphore(e164, code):
         'apikey': settings.SEMAPHORE_API_KEY,
         'number': for_semaphore(e164),
     }
+    template = getattr(settings, 'SMS_MESSAGE_TEMPLATE', DEFAULT_MESSAGE_TEMPLATE)
     if route == 'otp':
         # Semaphore puts our code where {otp} is.
-        payload['message'] = MESSAGE_TEMPLATE
+        payload['message'] = template
         payload['code'] = code
     else:
         # The regular route just sends the text we give it, so the code is already in it.
-        payload['message'] = MESSAGE_TEMPLATE.replace('{otp}', code)
+        payload['message'] = template.replace('{otp}', code)
     if settings.SEMAPHORE_SENDER_NAME:
         payload['sendername'] = settings.SEMAPHORE_SENDER_NAME
 

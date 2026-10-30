@@ -14,8 +14,9 @@
       <form method="post" class="form-grid">
         {% csrf_token %}
         <div class="field full">
-          <label>Report Type</label>
-          <select name="type" required>
+          <label for="reportTypeSelect">Report Type</label>
+          <!-- ds-allow-native-select: report type dropdown -->
+          <select id="reportTypeSelect" name="type" required>
             <option value="">Select a report...</option>
             {% for value, label in report_types %}
               <option value="{{ value }}">{{ label }}</option>
@@ -31,7 +32,7 @@
       <div class="panel-head">
         <div>
           <h3><i class="fa-solid fa-clock-rotate-left"></i> Generated Reports</h3>
-          <span class="muted">Previously generated reports — each is a saved snapshot as of its generated date.</span>
+          <span class="muted">Previously generated reports: each is a saved snapshot as of its generated date.</span>
         </div>
         {% if generated_reports %}
           <form method="post"
@@ -47,15 +48,11 @@
           {% for generated in generated_reports %}
             <tr>
               <td>
-                <input type="checkbox"
-                       name="report_ids"
-                       value="{{ generated.id }}"
-                       form="bulkArchiveForm"
-                       aria-label="Select {{ generated.title }}">
+                <input type="checkbox" name="report_ids" value="{{ generated.id }}" form="bulkArchiveForm" aria-label="Select {{ generated.title }}">
               </td>
               <td><b>{{ generated.title }}</b></td>
               <td>{{ generated.generated_at|date:"F d, Y g:i A" }}</td>
-              <td>{{ generated.generated_by.first_name|default:generated.generated_by.username|default:"—" }}</td>
+              <td>{{ generated.generated_by.first_name|default:generated.generated_by.username|default:"Not specified" }}</td>
               <td>
                 <div class="row-actions">
                   <a class="btn small secondary"
@@ -115,18 +112,14 @@
           {% for generated in archived_reports %}
             <tr>
               <td>
-                <input type="checkbox"
-                       name="report_ids"
-                       value="{{ generated.id }}"
-                       form="bulkDeleteForm"
-                       aria-label="Select {{ generated.title }}">
+                <input type="checkbox" name="report_ids" value="{{ generated.id }}" form="bulkDeleteForm" aria-label="Select {{ generated.title }}">
               </td>
               <td><b>{{ generated.title }}</b></td>
               <td>{{ generated.generated_at|date:"F d, Y g:i A" }}</td>
               <td>
                 {{ generated.archived_at|date:"M d, Y" }}
                 <br>
-                <span class="muted">by {{ generated.archived_by.first_name|default:generated.archived_by.username|default:"—" }}</span>
+                <span class="muted">by {{ generated.archived_by.first_name|default:generated.archived_by.username|default:"Not specified" }}</span>
               </td>
               <td>
                 {{ generated.deletes_at|date:"M d, Y" }}

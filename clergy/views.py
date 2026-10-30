@@ -107,8 +107,11 @@ def my_profile(request):
 
         if not station_name:
             messages.error(request, 'Please provide a station or parish name.')
+        elif start_date and end_date and start_date > end_date:
+            messages.error(request, 'End date cannot be earlier than start date.')
         else:
             if is_current:
+                end_date = None
                 profile.record.deployments.filter(is_current=True).update(is_current=False)
             ClergyDeployment.objects.create(
                 record=profile.record,
@@ -232,7 +235,9 @@ def my_profile(request):
                             b_date = None
                             if c_dob:
                                 try:
-                                    b_date = date.fromisoformat(c_dob)
+                                    parsed_date = date.fromisoformat(c_dob)
+                                    if parsed_date <= date.today():
+                                        b_date = parsed_date
                                 except ValueError:
                                     pass
                             new_children.append(ClergyChild(
@@ -254,11 +259,14 @@ def my_profile(request):
                     edu_places = request.POST.getlist('edu_place')
                     edu_years = request.POST.getlist('edu_year')
                     new_edus = []
+                    current_year = date.today().year
                     for deg, inst, plc, yr in zip(edu_degrees, edu_institutions, edu_places, edu_years):
                         deg = deg.strip()
                         inst = inst.strip()
                         plc = plc.strip()
                         grad_yr = int(yr.strip()) if yr and yr.strip().isdigit() else None
+                        if grad_yr and (grad_yr < 1900 or grad_yr > current_year + 10):
+                            grad_yr = None
                         if deg or inst:
                             new_edus.append(ClergyEducation(
                                 profile=profile,

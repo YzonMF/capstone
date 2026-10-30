@@ -254,12 +254,16 @@ def dashboard(request):
         'archived': ClergyRecord.objects.archived().count(),
     }
     recent_records = records.order_by('-created_at')[:5]
+    record_modal_draft = request.session.pop('record_modal_draft', None)
+    record_modal_errors = request.session.pop('record_modal_errors', None)
     return render(request, 'registrar/dashboard.html', {
         'active_page': 'dashboard',
         'stats': stats,
         'recent_records': recent_records,
         'next_id': ClergyRecord.next_id(),
         'deaneries_map': _build_deaneries_map(),
+        'record_modal_draft': record_modal_draft,
+        'record_modal_errors': record_modal_errors,
     })
 
 
@@ -336,6 +340,9 @@ def clergy_records(request):
     if rank_filter:
         page_params['rank'] = rank_filter
 
+    record_modal_draft = request.session.pop('record_modal_draft', None)
+    record_modal_errors = request.session.pop('record_modal_errors', None)
+
     return render(request, 'registrar/clergy-records.html', {
         'active_page': 'clergy_records',
         'records': records,
@@ -353,6 +360,8 @@ def clergy_records(request):
         'archivable_status': archive.ARCHIVABLE_STATUS,
         'next_id': ClergyRecord.next_id(),
         'deaneries_map': deaneries_map,
+        'record_modal_draft': record_modal_draft,
+        'record_modal_errors': record_modal_errors,
     })
 
 
@@ -417,16 +426,39 @@ def create_record(request):
     if request.method != 'POST':
         return redirect('registrar:clergy_records')
 
+    is_ajax = (request.headers.get('x-requested-with') == 'XMLHttpRequest' or
+               'application/json' in request.headers.get('accept', ''))
+
     form = ClergyRecordForm(request.POST)
     if not form.is_valid():
-        messages.error(request, 'Please fill in all required fields.')
-        return redirect('registrar:clergy_records')
+        err_msg = first_error(form) or 'Please fill in all required fields.'
+        if is_ajax:
+            return JsonResponse({'ok': False, 'message': err_msg, 'errors': form.errors}, status=400)
 
-    # Record, login and slip are produced together or not at all — the PDF is
+        messages.error(request, err_msg)
+        request.session['record_modal_draft'] = {
+            'name': request.POST.get('name', ''),
+            'deanery': request.POST.get('deanery', ''),
+            'assignment': request.POST.get('assignment', ''),
+            'status': request.POST.get('status', 'Active'),
+            'leave_reason': request.POST.get('leave_reason', ''),
+            'rank': request.POST.get('rank', 'deacon'),
+            'holy_orders_date': request.POST.get('holy_orders_date', ''),
+            'baptism_date': request.POST.get('baptism_date', ''),
+            'confirmation_date': request.POST.get('confirmation_date', ''),
+            'contract_end': request.POST.get('contract_end', ''),
+        }
+        request.session['record_modal_errors'] = {
+            field: [str(e) for e in errs] for field, errs in form.errors.items()
+        }
+        referer = request.META.get('HTTP_REFERER')
+        return redirect(referer) if referer else redirect('registrar:clergy_records')
+
+    # Record, login and slip are produced together or not at all (the PDF is
     # rendered inside the transaction, so if it fails nothing is saved and the
     # ID goes back, instead of leaving an account whose password was never
     # printed. The password is generated, not chosen, so there is nothing to
-    # type here.
+    # type here).
     try:
         with transaction.atomic():
             record = form.save(commit=False)
@@ -434,10 +466,17 @@ def create_record(request):
             record.save()
             user, password = provision_account(record)
             audit.record(request.user, user, 'account_created', target_name=record.name)
+            request.session.pop('record_modal_draft', None)
+            request.session.pop('record_modal_errors', None)
             return _slips_response(request, [_slip_entry(record.name, user, password)])
     except ProvisionError as exc:
-        messages.error(request, str(exc))
-        return redirect('registrar:clergy_records')
+        err_msg = str(exc)
+        if is_ajax:
+            return JsonResponse({'ok': False, 'message': err_msg}, status=400)
+        messages.error(request, err_msg)
+        request.session['record_modal_draft'] = request.POST.dict()
+        referer = request.META.get('HTTP_REFERER')
+        return redirect(referer) if referer else redirect('registrar:clergy_records')
 
 
 @registrar_required
@@ -692,8 +731,11 @@ def record_detail(request, record_id):
 
         if not station_name:
             messages.error(request, 'Please provide a station or parish name.')
+        elif start_date and end_date and start_date > end_date:
+            messages.error(request, 'End date cannot be earlier than start date.')
         else:
             if is_current:
+                end_date = None
                 record.deployments.filter(is_current=True).update(is_current=False)
             dep = ClergyDeployment.objects.create(
                 record=record,

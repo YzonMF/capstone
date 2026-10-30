@@ -93,6 +93,15 @@ document.querySelectorAll('#flash-messages [data-level]').forEach(msg=>showToast
    padding: 0 !important;
    overflow: hidden;
   }
+  #docPreviewModal {
+   z-index: 95 !important;
+  }
+  .toast {
+   z-index: 120 !important;
+  }
+  .ph-picker-panel {
+   z-index: 110 !important;
+  }
   .doc-preview-head {
    display: flex;
    align-items: center;
@@ -492,6 +501,8 @@ document.querySelectorAll('#flash-messages [data-level]').forEach(msg=>showToast
   document.getElementById('floatingSaveBtn')?.addEventListener('click',function(){
    isDirty=false;
    saveBar.classList.remove('visible');
+   const secSave=document.getElementById('sectionQuickEditSaveBtn');
+   if(secSave){secSave.click();return;}
    recordForm.requestSubmit();
   });
   document.getElementById('floatingDiscardBtn')?.addEventListener('click',function(){

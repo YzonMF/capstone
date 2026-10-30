@@ -471,9 +471,9 @@
             <b data-hub-bind="date_of_birth">{{ profile.record.date_of_birth|date:"M d, Y"|default:"—" }}</b>
             {% with att=profile.record.date_attachments_map.date_of_birth %}
               {% if att.is_uploaded %}
-                <span class="hub-att-tag ok"><i class="fa-solid fa-circle-check"></i> {{ att.name }}</span>
+                <span class="hub-att-tag ok" {% if att.doc_type %}data-hub-att-doc="{{ att.doc_type.id }}"{% endif %} data-hub-att-label="{{ att.name }}"><i class="fa-solid fa-circle-check"></i> {{ att.name }}</span>
               {% else %}
-                <span class="hub-att-tag missing"><i class="fa-solid fa-circle-exclamation"></i> Missing {{ att.name }}</span>
+                <span class="hub-att-tag missing" {% if att.doc_type %}data-hub-att-doc="{{ att.doc_type.id }}"{% endif %} data-hub-att-label="{{ att.name }}"><i class="fa-solid fa-circle-exclamation"></i> Missing {{ att.name }}</span>
               {% endif %}
             {% endwith %}
           </div>
@@ -506,9 +506,9 @@
             <b data-hub-bind="baptism_date">{{ profile.record.baptism_date|date:"M d, Y"|default:"—" }}</b>
             {% with att=profile.record.date_attachments_map.baptism_date %}
               {% if att.is_uploaded %}
-                <span class="hub-att-tag ok"><i class="fa-solid fa-circle-check"></i> Attached</span>
+                <span class="hub-att-tag ok" {% if att.doc_type %}data-hub-att-doc="{{ att.doc_type.id }}"{% endif %} data-hub-att-label="Attached"><i class="fa-solid fa-circle-check"></i> Attached</span>
               {% else %}
-                <span class="hub-att-tag missing"><i class="fa-solid fa-circle-exclamation"></i> Missing Cert</span>
+                <span class="hub-att-tag missing" {% if att.doc_type %}data-hub-att-doc="{{ att.doc_type.id }}"{% endif %} data-hub-att-label="Attached"><i class="fa-solid fa-circle-exclamation"></i> Missing Cert</span>
               {% endif %}
             {% endwith %}
           </div>
@@ -518,9 +518,9 @@
             <b data-hub-bind="confirmation_date">{{ profile.record.confirmation_date|date:"M d, Y"|default:"—" }}</b>
             {% with att=profile.record.date_attachments_map.confirmation_date %}
               {% if att.is_uploaded %}
-                <span class="hub-att-tag ok"><i class="fa-solid fa-circle-check"></i> Attached</span>
+                <span class="hub-att-tag ok" {% if att.doc_type %}data-hub-att-doc="{{ att.doc_type.id }}"{% endif %} data-hub-att-label="Attached"><i class="fa-solid fa-circle-check"></i> Attached</span>
               {% else %}
-                <span class="hub-att-tag missing"><i class="fa-solid fa-circle-exclamation"></i> Missing Cert</span>
+                <span class="hub-att-tag missing" {% if att.doc_type %}data-hub-att-doc="{{ att.doc_type.id }}"{% endif %} data-hub-att-label="Attached"><i class="fa-solid fa-circle-exclamation"></i> Missing Cert</span>
               {% endif %}
             {% endwith %}
           </div>
@@ -563,7 +563,7 @@
           <div class="hub-kv"><span>Name of Spouse</span><b data-hub-bind="spouse_name">{{ profile.spouse_name|default:"—" }}</b></div>
           <div class="hub-kv"><span>Date Married</span><b data-hub-bind="marriage_date">{{ profile.marriage_date|date:"M d, Y"|default:"—" }}</b></div>
           <div class="hub-kv"><span>Place of Marriage</span><b data-hub-bind="marriage_place">{{ profile.marriage_place|default:"—" }}</b></div>
-          <div class="hub-kv"><span>Children Listed</span><b>{{ profile.children.count }} child{{ profile.children.count|pluralize:"ren" }}</b></div>
+          <div class="hub-kv"><span>Children Listed</span><b id="hubChildrenCount">{{ profile.children.count }} child{{ profile.children.count|pluralize:"ren" }}</b></div>
         </div>
       </div>
 
@@ -576,7 +576,7 @@
         <div class="hub-kv-grid">
           <div class="hub-kv full">
             <span>Degrees &amp; Graduations</span>
-            <b>
+            <b id="hubEducationSummary">
               {% for edu in profile.educations.all %}
                 {{ edu.degree }} — {{ edu.institution }}{% if edu.year_graduated %} ({{ edu.year_graduated }}){% endif %}{% if not forloop.last %}<br>{% endif %}
               {% empty %}
@@ -1628,6 +1628,12 @@
       }
     });
 
+    document.querySelectorAll('.hub-att-tag[data-hub-att-doc="' + docTypeId + '"]').forEach(function(tag) {
+      const label = tag.dataset.hubAttLabel || data.document_name || 'Attached';
+      tag.className = 'hub-att-tag ok';
+      tag.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + label;
+    });
+
     if (data.summary_submitted !== undefined && data.summary_total !== undefined) {
       document.querySelectorAll('.sidebar .nav a[href*="requirements"] .badge').forEach(function(b) {
         b.textContent = data.summary_submitted + '/' + data.summary_total;
@@ -1756,6 +1762,14 @@
     }
   }
 
+  const AUTO_OPEN_SECTION_KEY = 'ednp_reopen_section_' + window.location.pathname;
+
+  document.querySelectorAll('#addDeploymentModal form, #sec-deployments form').forEach(function(depForm) {
+    depForm.addEventListener('submit', function() {
+      try { sessionStorage.setItem(AUTO_OPEN_SECTION_KEY, 'sec-deployments'); } catch (_e) {}
+    });
+  });
+
   function syncHubCardsFromForm() {
     if (!mainForm) return;
     document.querySelectorAll('[data-hub-bind]').forEach(function(el) {
@@ -1780,6 +1794,42 @@
         el.textContent = val;
       }
     });
+
+    const civilStatusVal = (mainForm.querySelector('[name="civil_status"]')?.value || '').trim();
+    const childrenCountEl = document.getElementById('hubChildrenCount');
+    if (childrenCountEl) {
+      if (civilStatusVal === 'Single') {
+        childrenCountEl.textContent = '0 children';
+      } else {
+        let count = 0;
+        document.querySelectorAll('#childrenTable tbody tr:not(.empty-row)').forEach(function(tr) {
+          if ((tr.querySelector('[name="child_name"]')?.value || '').trim()) count++;
+        });
+        childrenCountEl.textContent = count + (count === 1 ? ' child' : ' children');
+      }
+    }
+
+    const eduSummaryEl = document.getElementById('hubEducationSummary');
+    if (eduSummaryEl) {
+      const lines = [];
+      document.querySelectorAll('#educationTable tbody tr:not(.empty-row)').forEach(function(tr) {
+        const deg = (tr.querySelector('[name="edu_degree"]')?.value || '').trim();
+        const inst = (tr.querySelector('[name="edu_institution"]')?.value || '').trim();
+        const yr = (tr.querySelector('[name="edu_year"]')?.value || '').trim();
+        if (deg || inst) {
+          lines.push((deg || 'Degree') + (inst ? ' — ' + inst : '') + (yr ? ' (' + yr + ')' : ''));
+        }
+      });
+      if (lines.length === 0) {
+        eduSummaryEl.textContent = 'No structured degrees listed yet';
+      } else {
+        eduSummaryEl.innerHTML = lines.map(function(l) {
+          const d = document.createElement('div');
+          d.textContent = l;
+          return d.innerHTML;
+        }).join('<br>');
+      }
+    }
   }
 
   function closeSectionModal(highlightCard) {
@@ -1846,13 +1896,34 @@
     returnSectionToPage();
   }, true);
 
+  try {
+    const reopenSection = sessionStorage.getItem(AUTO_OPEN_SECTION_KEY);
+    if (reopenSection) {
+      sessionStorage.removeItem(AUTO_OPEN_SECTION_KEY);
+      openSectionInModal(reopenSection);
+    }
+  } catch (_e) {}
+
   sectionSaveBtn?.addEventListener('click', async function() {
     if (!mainForm) return;
+    const savedSectionId = activeSectionId;
+
+    // Validate visible fields inside the currently open section first
+    if (activeSectionNode) {
+      const activeInputs = Array.from(activeSectionNode.querySelectorAll('input, select, textarea'));
+      for (let i = 0; i < activeInputs.length; i++) {
+        const inp = activeInputs[i];
+        if (!inp.disabled && typeof inp.checkValidity === 'function' && !inp.checkValidity()) {
+          if (typeof inp.reportValidity === 'function') inp.reportValidity();
+          return;
+        }
+      }
+    }
+
     const origHtml = sectionSaveBtn.innerHTML;
     sectionSaveBtn.disabled = true;
     sectionSaveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
 
-    const savedSectionId = activeSectionId;
     returnSectionToPage();
     const formData = new FormData(mainForm);
     openSectionInModal(savedSectionId);
