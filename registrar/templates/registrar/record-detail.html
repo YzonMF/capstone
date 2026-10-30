@@ -213,6 +213,140 @@
   #quickUploadModal {
     z-index: 80 !important;
   }
+
+  /* Summary Hub Cards (replaces long scrollable inputs on page) */
+  .hub-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .hub-card {
+    background: #ffffff;
+    border: 1px solid #dce4ef;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+  }
+  .hub-card:hover {
+    border-color: #2f6fed;
+    box-shadow: 0 8px 22px rgba(47, 111, 237, 0.12);
+    transform: translateY(-2px);
+  }
+  .hub-card.full {
+    grid-column: 1 / -1;
+  }
+  .hub-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 10px;
+  }
+  .hub-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #17324d;
+    margin: 0;
+  }
+  .hub-card-title i {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2f6fed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .hub-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    font-size: 12.5px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+    pointer-events: auto;
+  }
+  .hub-card:hover .hub-edit-btn {
+    background: #2f6fed;
+    color: #ffffff;
+    border-color: #2f6fed;
+  }
+  .hub-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  .hub-kv.full {
+    grid-column: 1 / -1;
+  }
+  .hub-kv-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 3px;
+  }
+  .hub-kv-val {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1e293b;
+    word-break: break-word;
+  }
+  .hub-kv-val.empty {
+    color: #94a3b8;
+    font-weight: 500;
+    font-style: italic;
+  }
+  .hub-att-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-top: 4px;
+  }
+  .hub-att-tag.ok {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  .hub-att-tag.warn {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  .hub-hidden-sections {
+    display: none !important;
+  }
+  @media (max-width: 800px) {
+    .hub-cards-grid {
+      grid-template-columns: 1fr;
+    }
+    .hub-kv-grid {
+      grid-template-columns: 1fr;
+    }
+  }
   </style>
 {% endblock %}
 {% block content %}
@@ -220,9 +354,6 @@
     <div class="panel">
       <div class="panel-head"><div class="record-head-identity"><div class="record-avatar">{% if record.profile_picture %}<img src="{% url 'registrar:view_profile_picture' record.id %}" alt="{{ record.name }}" width="44" height="44">{% else %}<span>{{ record.initials }}</span>{% endif %}</div><div><h3><i class="fa-solid fa-user-tie"></i> {{ record.name }}</h3><span class="muted">{{ record.id }} — {{ record.get_rank_display }} — {{ record.get_status_display }}{% if record.is_archived %} — Archived{% endif %}</span></div></div>
         <div style="display:flex;gap:8px;align-items:center;">
-          {% if not record.is_archived %}
-            <button type="submit" form="recordPersonalForm" id="topSaveRecordBtn" class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
-          {% endif %}
           {% if record.is_archived %}
             <form method="post"
                   action="{% url 'registrar:restore_record' record.id %}"
@@ -259,7 +390,196 @@
             <a href="#sec-reg-family" class="nav-pill" data-section-modal="sec-reg-family" data-section-title="Family &amp; Educational Background"><i class="fa-solid fa-people-roof"></i> Family &amp; Education</a>
           </div>
         </nav>
-        <form method="post" id="recordPersonalForm">
+
+        <!-- Summary Hub Cards (click any card to pop up its section modal) -->
+        <div class="hub-cards-grid" id="registrarSummaryHub">
+
+          <!-- 1. Identity & Basic Details -->
+          <div class="hub-card" data-open-section="sec-reg-identity" tabindex="0" role="button" aria-label="Edit Identity and Basic Details">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-id-card"></i> Identity &amp; Basic Details</h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv">
+                <span class="hub-kv-label">Full Name</span>
+                <div class="hub-kv-val" data-hub-bind="name">{{ record.name|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Record ID</span>
+                <div class="hub-kv-val">{{ record.id }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Date of Birth</span>
+                <div class="hub-kv-val {% if not record.date_of_birth %}empty{% endif %}" data-hub-bind="date_of_birth">{{ record.date_of_birth|date:"M d, Y"|default:"Not set" }}</div>
+                {% with att=record.date_attachments_map.date_of_birth %}
+                {% if att.is_uploaded %}
+                  <span class="hub-att-tag ok"><i class="fa-solid fa-circle-check"></i> Birth Cert attached</span>
+                {% else %}
+                  <span class="hub-att-tag warn"><i class="fa-solid fa-circle-exclamation"></i> Birth Cert missing</span>
+                {% endif %}
+                {% endwith %}
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Gender</span>
+                <div class="hub-kv-val {% if not record.gender %}empty{% endif %}" data-hub-bind="gender">{{ record.gender|default:"—" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Contact & Residential Information -->
+          <div class="hub-card" data-open-section="sec-reg-contact" tabindex="0" role="button" aria-label="Edit Contact and Residential Information">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-address-book"></i> Contact &amp; Residence</h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv full">
+                <span class="hub-kv-label">Residential Address</span>
+                <div class="hub-kv-val {% if not record.address %}empty{% endif %}" data-hub-bind="address">{{ record.address|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Contact Number</span>
+                <div class="hub-kv-val {% if not record.phone %}empty{% endif %}">{{ record.phone|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Email Address</span>
+                <div class="hub-kv-val {% if not record.email %}empty{% endif %}" data-hub-bind="email">{{ record.email|default:"—" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Sacramental Records -->
+          <div class="hub-card" data-open-section="sec-reg-sacraments" tabindex="0" role="button" aria-label="Edit Sacramental Records">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-water"></i> Sacramental Records</h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv">
+                <span class="hub-kv-label">Date of Baptism</span>
+                <div class="hub-kv-val {% if not record.baptism_date %}empty{% endif %}" data-hub-bind="baptism_date">{{ record.baptism_date|date:"M d, Y"|default:"Not set" }}</div>
+                {% with att=record.date_attachments_map.baptism_date %}
+                {% if att.is_uploaded %}
+                  <span class="hub-att-tag ok"><i class="fa-solid fa-circle-check"></i> Cert attached</span>
+                {% else %}
+                  <span class="hub-att-tag warn"><i class="fa-solid fa-circle-exclamation"></i> Cert missing</span>
+                {% endif %}
+                {% endwith %}
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Date of Confirmation</span>
+                <div class="hub-kv-val {% if not record.confirmation_date %}empty{% endif %}" data-hub-bind="confirmation_date">{{ record.confirmation_date|date:"M d, Y"|default:"Not set" }}</div>
+                {% with att=record.date_attachments_map.confirmation_date %}
+                {% if att.is_uploaded %}
+                  <span class="hub-att-tag ok"><i class="fa-solid fa-circle-check"></i> Cert attached</span>
+                {% else %}
+                  <span class="hub-att-tag warn"><i class="fa-solid fa-circle-exclamation"></i> Cert missing</span>
+                {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Holy Orders & Ordination History -->
+          <div class="hub-card" data-open-section="sec-reg-orders" tabindex="0" role="button" aria-label="Edit Holy Orders and Ordination History">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-church"></i> Holy Orders</h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv">
+                <span class="hub-kv-label">Diaconate Ordination</span>
+                <div class="hub-kv-val {% if not record.diaconate_date %}empty{% endif %}" data-hub-bind="diaconate_date">{{ record.diaconate_date|date:"M d, Y"|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Priesthood Ordination</span>
+                <div class="hub-kv-val {% if not record.ordination_date %}empty{% endif %}" data-hub-bind="ordination_date">{{ record.ordination_date|date:"M d, Y"|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Admitted as Holy Order</span>
+                <div class="hub-kv-val {% if not record.holy_orders_date %}empty{% endif %}" data-hub-bind="holy_orders_date">{{ record.holy_orders_date|date:"M d, Y"|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Ordaining Bishop</span>
+                <div class="hub-kv-val {% if not record.bishop_name %}empty{% endif %}" data-hub-bind="bishop_name">{{ record.bishop_name|default:"—" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Deployment & Official Status -->
+          <div class="hub-card" data-open-section="sec-reg-status" tabindex="0" role="button" aria-label="Edit Deployment and Official Status">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-briefcase"></i> Status &amp; Tenure</h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv">
+                <span class="hub-kv-label">Rank &amp; Status</span>
+                <div class="hub-kv-val"><span data-hub-bind="rank">{{ record.get_rank_display }}</span> — <span data-hub-bind="status">{{ record.status }}</span></div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Deanery</span>
+                <div class="hub-kv-val {% if not record.deanery %}empty{% endif %}" data-hub-bind="deanery">{{ record.deanery|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Current Assignment</span>
+                <div class="hub-kv-val {% if not record.assignment %}empty{% endif %}" data-hub-bind="assignment">{{ record.assignment|default:"Not yet assigned" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Contract End Date</span>
+                <div class="hub-kv-val {% if not record.contract_end %}empty{% endif %}" data-hub-bind="contract_end">{{ record.contract_end|date:"M d, Y"|default:"—" }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Deployments & Station History -->
+          <div class="hub-card" data-open-section="sec-reg-deployments" tabindex="0" role="button" aria-label="Manage Deployments and Station History">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-map-location-dot"></i> Deployments</h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-list-check"></i> Manage</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv">
+                <span class="hub-kv-label">Total Service</span>
+                <div class="hub-kv-val">{{ record.years_of_service_display }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Recorded Stations</span>
+                <div class="hub-kv-val">{{ record.deployments.count }} assignment{{ record.deployments.count|pluralize }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Family & Educational Background (Filed by Clergy) -->
+          <div class="hub-card full" data-open-section="sec-reg-family" tabindex="0" role="button" aria-label="View Family and Educational Background">
+            <div class="hub-card-head">
+              <h4 class="hub-card-title"><i class="fa-solid fa-people-roof"></i> Family &amp; Educational Background <span class="badge blue" style="font-size:11px;font-weight:600;margin-left:6px;">Filed by Clergy</span></h4>
+              <span class="hub-edit-btn"><i class="fa-solid fa-eye"></i> View Details</span>
+            </div>
+            <div class="hub-kv-grid">
+              <div class="hub-kv">
+                <span class="hub-kv-label">Civil Status</span>
+                <div class="hub-kv-val">{{ clergy_profile.civil_status|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Name of Spouse</span>
+                <div class="hub-kv-val {% if not clergy_profile.spouse_name %}empty{% endif %}">{{ clergy_profile.spouse_name|default:"—" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Children Recorded</span>
+                <div class="hub-kv-val">{{ clergy_profile.children.count }} child{{ clergy_profile.children.count|pluralize:" ,ren" }}</div>
+              </div>
+              <div class="hub-kv">
+                <span class="hub-kv-label">Structured Degrees</span>
+                <div class="hub-kv-val">{{ clergy_profile.educations.count }} degree{{ clergy_profile.educations.count|pluralize }} recorded</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <form method="post" id="recordPersonalForm" class="hub-hidden-sections">
           {% csrf_token %}
           <div class="section-card">
             <h4><i class="fa-solid fa-user"></i> Personal &amp; Contact Information</h4>
@@ -607,6 +927,7 @@
           </div>
         </form>
 
+        <div class="hub-hidden-sections">
         <!-- Deployments & Station History -->
         <div class="section-card" id="sec-reg-deployments" style="margin-top:24px; scroll-margin-top: 70px;">
           <div class="section-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
@@ -729,11 +1050,6 @@
           </div>
           {% endif %}
         </div>
-        <div class="actions" style="margin-top:24px;display:flex;justify-content:flex-end;gap:10px;">
-          <a class="btn secondary" href="{{ records_list_url }}"><i class="fa-solid fa-arrow-left"></i> Back to Clergy Records</a>
-          {% if not record.is_archived %}
-            <button type="submit" form="recordPersonalForm" class="btn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
-          {% endif %}
         </div>
       </div>
       <div id="tabDocuments" class="tab-content">
@@ -1013,7 +1329,7 @@
         <button type="button" class="btn small secondary" id="sectionQuickEditNextBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button type="button" class="btn secondary" id="sectionQuickEditDoneBtn"><i class="fa-solid fa-arrow-down-short-wide"></i> Back to Full Page</button>
+        <button type="button" class="btn secondary" id="sectionQuickEditDoneBtn"><i class="fa-solid fa-xmark"></i> Close</button>
         {% if not record.is_archived %}
         <button type="button" class="btn" id="sectionQuickEditSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
         {% endif %}
@@ -1381,19 +1697,51 @@
       }
     }
 
-    function closeSectionModal(scrollToSection) {
-      const lastNode = activeSectionNode;
+    function syncHubCardsFromForm() {
+      if (!mainForm) return;
+      document.querySelectorAll('[data-hub-bind]').forEach(function(el) {
+        const fieldName = el.dataset.hubBind;
+        const input = mainForm.querySelector('[name="' + CSS.escape(fieldName) + '"]');
+        if (!input) return;
+        let val = (input.value || '').trim();
+        if (input.tagName === 'SELECT' && input.selectedIndex >= 0 && val) {
+          val = input.options[input.selectedIndex].text.trim();
+        }
+        if (!val) {
+          el.textContent = '—';
+          el.classList.add('empty');
+        } else {
+          el.classList.remove('empty');
+          if (input.type === 'date') {
+            try {
+              const d = new Date((input.value || '').trim() + 'T00:00:00');
+              if (!isNaN(d.getTime())) {
+                el.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                return;
+              }
+            } catch (_e) {}
+          }
+          el.textContent = val;
+        }
+      });
+    }
+
+    function closeSectionModal(highlightCard) {
+      const lastId = activeSectionId;
       returnSectionToPage();
       activeSectionId = '';
       if (sectionModal) {
         sectionModal.classList.remove('show', 'section-modal-active');
         sectionModal.style.display = 'none';
       }
-      if (scrollToSection && lastNode) {
-        lastNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        lastNode.classList.remove('field-highlight-flash');
-        void lastNode.offsetWidth;
-        lastNode.classList.add('field-highlight-flash');
+      if (highlightCard && lastId) {
+        const card = document.querySelector('.hub-card[data-open-section="' + CSS.escape(lastId) + '"]') || document.getElementById(lastId);
+        if (card && card.offsetParent !== null) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.classList.remove('field-highlight-flash');
+          void card.offsetWidth;
+          card.classList.add('field-highlight-flash');
+        }
       }
     }
 
@@ -1405,10 +1753,27 @@
       }, true);
     });
 
-    document.getElementById('sectionQuickEditCloseTop')?.addEventListener('click', function() { closeSectionModal(true); });
-    document.getElementById('sectionQuickEditDoneBtn')?.addEventListener('click', function() { closeSectionModal(true); });
+    document.querySelectorAll('.hub-card[data-open-section]').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('a, button')) return;
+        openSectionInModal(card.dataset.openSection);
+      });
+      card.querySelector('.hub-edit-btn')?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openSectionInModal(card.dataset.openSection);
+      });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openSectionInModal(card.dataset.openSection);
+        }
+      });
+    });
+
+    document.getElementById('sectionQuickEditCloseTop')?.addEventListener('click', function() { closeSectionModal(false); });
+    document.getElementById('sectionQuickEditDoneBtn')?.addEventListener('click', function() { closeSectionModal(false); });
     sectionModal?.addEventListener('click', function(e) {
-      if (e.target === sectionModal) closeSectionModal(true);
+      if (e.target === sectionModal) closeSectionModal(false);
     });
 
     sectionPrevBtn?.addEventListener('click', function() {
@@ -1461,6 +1826,7 @@
         if (typeof showToast === 'function') {
           showToast(data.message || 'Changes saved successfully.', 'success');
         }
+        syncHubCardsFromForm();
         closeSectionModal(true);
       } catch (_err) {
         if (typeof showToast === 'function') {

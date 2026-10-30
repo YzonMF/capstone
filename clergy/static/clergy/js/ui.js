@@ -401,9 +401,9 @@ if(profilePicInput){
   // Case A: Quick Upload Modal or Requirement Card Upload Form
   const isQuickUpload=Boolean(form.closest('#quickUploadModal'));
   const isDocCardUpload=form.classList.contains('doc-card-upload');
-  // Case B: Profile picture upload/remove button inside #profileForm
+  // Case B: Profile picture upload/remove button inside #profileForm or #profilePhotoForm
   const submitter=e.submitter;
-  const isProfilePicAction=form.id==='profileForm'&&submitter&&(submitter.name==='upload_profile_picture'||submitter.name==='remove_profile_picture');
+  const isProfilePicAction=(form.id==='profileForm'||form.id==='profilePhotoForm')&&submitter&&(submitter.name==='upload_profile_picture'||submitter.name==='remove_profile_picture');
 
   if(!isQuickUpload&&!isDocCardUpload&&!isProfilePicAction)return;
 
